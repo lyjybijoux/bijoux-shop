@@ -67,20 +67,20 @@ const ComingSoon = () => {
 const Home = () => {
 	const searchParams = useSearchParams();
 
-	const [isAdmin, setIsAdmin] = useState(false);
+	// 🔐 INIT DIRECT (PAS DE FLASH)
+	const initialAdmin =
+		typeof window !== 'undefined' &&
+		(localStorage.getItem('admin') === 'true' ||
+			searchParams.get('admin') === '0311');
 
-	// 🔐 gestion accès admin
+	const [isAdmin, setIsAdmin] = useState(initialAdmin);
+
+	// 🔁 sauvegarde si accès via URL
 	useEffect(() => {
-		const param = searchParams.get('admin');
-
-		if (param === '0311') {
+		if (searchParams.get('admin') === '0311') {
 			localStorage.setItem('admin', 'true');
 			setIsAdmin(true);
-			return;
 		}
-
-		const saved = localStorage.getItem('admin') === 'true';
-		setIsAdmin(saved);
 	}, [searchParams]);
 
 	const addToCart = useCartStore((state) => state.addToCart);
