@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PRIVATE_PATH = '/jennifer-guilloteau/0311';
 
-export const proxy = (req: NextRequest) => {
+export function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
 
 	// 🔓 accès privé
@@ -11,19 +11,22 @@ export const proxy = (req: NextRequest) => {
 		return NextResponse.next();
 	}
 
-	// 🔧 autoriser la page maintenance (sinon boucle infinie)
+	// 🔧 maintenance page autorisée
 	if (pathname === '/maintenance') {
 		return NextResponse.next();
 	}
 
-	// ⚙️ autoriser Next.js assets
-	if (pathname.startsWith('/_next')) {
+	// ⚙️ assets next
+	if (
+		pathname.startsWith('/_next') ||
+		pathname.startsWith('/favicon.ico')
+	) {
 		return NextResponse.next();
 	}
 
 	// 🔁 redirection globale
 	return NextResponse.redirect(new URL('/maintenance', req.url));
-};
+}
 
 export const config = {
 	matcher: '/:path*',
