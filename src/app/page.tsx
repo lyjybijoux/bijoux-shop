@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import useCartStore from '../store/cart';
@@ -11,90 +10,40 @@ import useAdminCategoriesStore from '../store/adminCategories';
 import useAdminThemesStore from '../store/adminThemes';
 import FiltersMenu from '@/components/FiltersMenu';
 
-const MAINTENANCE = true;
-
-// 💎 COMING SOON
-const ComingSoon = () => {
-	const [email, setEmail] = useState('');
-	const [sent, setSent] = useState(false);
-
-	const handleSubmit = () => {
-		if (!email) return;
-
-		const existing = JSON.parse(localStorage.getItem('emails') || '[]');
-		localStorage.setItem('emails', JSON.stringify([...existing, email]));
-
-		setSent(true);
-	};
-
-	return (
-		<main className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden px-6">
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_70%)]" />
-
-			<div className="relative z-10 text-center max-w-md w-full">
-				<h1 className="text-5xl md:text-6xl font-semibold tracking-tight mb-6">
-					LYJY
-				</h1>
-
-				<p className="text-lg text-white/70 mb-8">
-					Une nouvelle collection de bijoux arrive bientôt.
-				</p>
-
-				<div className="h-px w-24 mx-auto bg-white/20 mb-8" />
-
-				{sent ? (
-					<p className="text-green-400 text-sm">
-						Merci 💎 Tu seras informé du lancement.
-					</p>
-				) : (
-					<div className="flex flex-col gap-3">
-						<input
-							type="email"
-							placeholder="Ton email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none"
-						/>
-
-						<button
-							onClick={handleSubmit}
-							className="px-4 py-3 rounded-lg bg-white text-black font-medium hover:opacity-90 transition"
-						>
-							Être prévenu
-						</button>
-					</div>
-				)}
-
-				<p className="text-xs text-white/40 mt-6">
-					Lancement prochainement
-				</p>
-			</div>
-		</main>
-	);
-};
-
-// 🛍️ HOME
 const Home = () => {
-	const searchParams = useSearchParams();
-	const preview = searchParams.get('preview') === 'true';
-
+	// 🛒 Cart
 	const addToCart = useCartStore((state) => state.addToCart);
 	const clearCart = useCartStore((state) => state.clearCart);
 
+	// 🔐 Auth
 	const user = useAuthStore((state) => state.user);
 	const logout = useAuthStore((state) => state.logout);
 	const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
 
+	// 📦 Products
 	const products = useAdminProductsStore((state) => state.products);
 	const hasProductsHydrated = useAdminProductsStore((state) => state.hasHydrated);
 
-	useAdminCategoriesStore((state) => state.categories);
-	useAdminThemesStore((state) => state.themes);
+	const categories = useAdminCategoriesStore((state) => state.categories);
+	const themes = useAdminThemesStore((state) => state.themes);
 
+	// 🎛 UI
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 	const [openMenu, setOpenMenu] = useState(false);
 
+	// 🔥 REMPLACE useSearchParams
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+
+		const category = params.get('category');
+		const theme = params.get('theme');
+
+		if (category) setSelectedCategory(category);
+		if (theme) setSelectedTheme(theme);
+	}, []);
+
+	// 🔥 ATTENDRE HYDRATATION
 	if (!hasAuthHydrated || !hasProductsHydrated) return null;
 
 	const filteredProducts = products.filter((product) => {
@@ -103,11 +52,9 @@ const Home = () => {
 		return true;
 	});
 
-	// 🔥 MAINTENANCE + ACCÈS SECRET
-	if (MAINTENANCE && !preview) return <ComingSoon />;
-
 	return (
 		<main className="site" style={{ paddingTop: 80 }}>
+			{/* NAVBAR */}
 			<header style={navbar}>
 				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
@@ -142,6 +89,7 @@ const Home = () => {
 				</div>
 			</header>
 
+			{/* MENU */}
 			<button onClick={() => setOpenMenu(!openMenu)} style={menuButton}>
 				☰ Menu
 			</button>
@@ -157,6 +105,7 @@ const Home = () => {
 				</div>
 			)}
 
+			{/* HERO */}
 			<section style={hero}>
 				<div style={heroContent}>
 					<img src="/logo-transparent.png" style={heroLogo} />
@@ -166,6 +115,7 @@ const Home = () => {
 				</div>
 			</section>
 
+			{/* PRODUITS */}
 			<section>
 				<div style={heading}>
 					<p style={{ opacity: 0.6 }}>Boutique</p>
@@ -180,7 +130,10 @@ const Home = () => {
 							style={{ textDecoration: 'none', color: 'inherit' }}
 						>
 							<article style={card}>
-								<img src={product.image || '/placeholder.png'} style={image} />
+								<img
+									src={product.image || '/placeholder.png'}
+									style={image}
+								/>
 
 								<div style={content}>
 									<h3 style={title}>{product.name}</h3>
@@ -214,7 +167,10 @@ const Home = () => {
 
 export default Home;
 
-// 🎨 STYLES (inchangés)
+//
+// 🎨 STYLES
+//
+
 const navbar = {
 	position: 'fixed' as const,
 	top: 0,
