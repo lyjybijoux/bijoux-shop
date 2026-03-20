@@ -1,46 +1,49 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import useOrdersStore from '@/store/orders';
-
-const SuccessPage = () => {
-	const router = useRouter();
-	const searchParams = useSearchParams();
-
-	const sessionId = searchParams.get('session_id');
-	const addOrder = useOrdersStore((s) => s.addOrder);
+export default function Page() {
+	const [sessionId, setSessionId] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!sessionId) return;
+		const params = new URLSearchParams(window.location.search);
+		const id = params.get('session_id');
+		setSessionId(id);
 
-		console.log('✅ Session Stripe:', sessionId);
-
-		addOrder({
-			id: sessionId,
-			items: [
-				{
-					name: 'Commande Stripe',
-					price: 0,
-					quantity: 1,
-				},
-			],
-			total: 0,
-			date: new Date().toISOString(),
-		});
-
-		setTimeout(() => {
-			router.push('/account');
-		}, 1500);
-	}, [sessionId]);
+		if (id) {
+			console.log('✅ Session Stripe:', id);
+		}
+	}, []);
 
 	return (
-		<div style={{ padding: 40 }}>
-			<h1>✅ Paiement réussi</h1>
-			<p>Traitement de votre commande...</p>
-		</div>
-	);
-};
+		<main
+			style={{
+				minHeight: '100vh',
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+				alignItems: 'center',
+				gap: 20,
+				textAlign: 'center',
+				padding: 20,
+			}}
+		>
+			<h1>🎉 Paiement réussi</h1>
 
-export default SuccessPage;
+			<p>
+				Merci pour votre achat 💎<br />
+				Votre commande a bien été prise en compte.
+			</p>
+
+			{sessionId && (
+				<p style={{ opacity: 0.6 }}>
+					ID commande : {sessionId}
+				</p>
+			)}
+
+			<a href="/" style={{ color: 'gold' }}>
+				Retour à la boutique
+			</a>
+		</main>
+	);
+}
