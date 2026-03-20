@@ -5,22 +5,33 @@ const MAINTENANCE_MODE = true;
 const SECRET = 'mon-acces-prive-123';
 
 export default function middleware(req: NextRequest) {
-	const url = req.nextUrl;
+	const { pathname, searchParams } = req.nextUrl;
 
-	// ⚠️ IMPORTANT : laisser passer la page maintenance
-	if (url.pathname.startsWith('/maintenance')) {
+	// ✅ laisser passer les fichiers système
+	if (
+		pathname.startsWith('/_next') ||
+		pathname.startsWith('/api') ||
+		pathname === '/favicon.ico'
+	) {
 		return NextResponse.next();
 	}
 
-	const hasAccess = url.searchParams.get('access') === SECRET;
+	// ✅ laisser passer la page maintenance
+	if (pathname === '/maintenance') {
+		return NextResponse.next();
+	}
+
+	const hasAccess = searchParams.get('access') === SECRET;
 	const hasCookie = req.cookies.get('admin-access')?.value === 'true';
 
+	// 🔓 accès admin
 	if (hasAccess) {
 		const res = NextResponse.next();
 		res.cookies.set('admin-access', 'true', { path: '/' });
 		return res;
 	}
 
+	// 🚧 redirection maintenance
 	if (MAINTENANCE_MODE && !hasCookie) {
 		return NextResponse.redirect(new URL('/maintenance', req.url));
 	}
