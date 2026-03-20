@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import useCartStore from '../store/cart';
@@ -12,7 +12,6 @@ import useAdminThemesStore from '../store/adminThemes';
 import FiltersMenu from '@/components/FiltersMenu';
 
 const MAINTENANCE = true;
-const PRIVATE_PATH = '/jennifer-guilloteau/0311';
 
 // 💎 COMING SOON
 const ComingSoon = () => {
@@ -66,8 +65,23 @@ const ComingSoon = () => {
 
 // 🛍️ HOME
 const Home = () => {
-	const pathname = usePathname();
-	const isPrivate = pathname.startsWith(PRIVATE_PATH);
+	const searchParams = useSearchParams();
+
+	const [isAdmin, setIsAdmin] = useState(false);
+
+	// 🔐 gestion accès admin
+	useEffect(() => {
+		const param = searchParams.get('admin');
+
+		if (param === '0311') {
+			localStorage.setItem('admin', 'true');
+			setIsAdmin(true);
+			return;
+		}
+
+		const saved = localStorage.getItem('admin') === 'true';
+		setIsAdmin(saved);
+	}, [searchParams]);
 
 	const addToCart = useCartStore((state) => state.addToCart);
 	const clearCart = useCartStore((state) => state.clearCart);
@@ -94,8 +108,8 @@ const Home = () => {
 		return true;
 	});
 
-	// 🔥 MAINTENANCE
-	if (MAINTENANCE && !isPrivate) {
+	// 🚧 MAINTENANCE
+	if (MAINTENANCE && !isAdmin) {
 		return <ComingSoon />;
 	}
 
