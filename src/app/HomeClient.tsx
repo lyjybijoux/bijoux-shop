@@ -4,13 +4,21 @@ import { useEffect, useState } from 'react';
 
 const MAINTENANCE = true;
 
+// 💎 COMING SOON
 const ComingSoon = () => (
-	<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-		<h1>🚧 Maintenance</h1>
+	<div style={{
+		height: '100vh',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		background: '#020617',
+		color: 'white'
+	}}>
+		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
 
-export default function HomeClient() {
+const HomeClient = () => {
 	const [preview, setPreview] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
@@ -23,13 +31,18 @@ export default function HomeClient() {
 
 	if (!mounted) return null;
 
+	// 🚧 maintenance
 	if (MAINTENANCE && !preview) {
 		return <ComingSoon />;
 	}
 
+	// 🔓 site visible
 	return (
 		<div style={{ padding: 40 }}>
 			<h1>🔓 Site débloqué</h1>
+			<p>Ta boutique va s’afficher ici 👇</p>
 		</div>
 	);
-}
+};
+
+export default HomeClient;
