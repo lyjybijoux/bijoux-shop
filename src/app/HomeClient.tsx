@@ -1,23 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
 import useCartStore from '../store/cart';
+import useAuthStore from '../store/auth';
 import useAdminProductsStore from '../store/adminProducts';
+import useAdminCategoriesStore from '../store/adminCategories';
+import useAdminThemesStore from '../store/adminThemes';
+import FiltersMenu from '@/components/FiltersMenu';
 
 const MAINTENANCE = true;
 
 // 💎 COMING SOON
 const ComingSoon = () => (
-	<div
-		style={{
-			height: '100vh',
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			background: '#020617',
-			color: 'white',
-		}}
-	>
+	<div style={{
+		height: '100vh',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		background: '#020617',
+		color: 'white'
+	}}>
 		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
@@ -27,7 +31,21 @@ const HomeClient = () => {
 	const [mounted, setMounted] = useState(false);
 
 	const addToCart = useCartStore((state) => state.addToCart);
+	const clearCart = useCartStore((state) => state.clearCart);
+
+	const user = useAuthStore((state) => state.user);
+	const logout = useAuthStore((state) => state.logout);
+	const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
+
 	const products = useAdminProductsStore((state) => state.products);
+	const hasProductsHydrated = useAdminProductsStore((state) => state.hasHydrated);
+
+	useAdminCategoriesStore((state) => state.categories);
+	useAdminThemesStore((state) => state.themes);
+
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+	const [openMenu, setOpenMenu] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
@@ -36,68 +54,119 @@ const HomeClient = () => {
 		setPreview(params.get('preview') === 'true');
 	}, []);
 
-	if (!mounted) return null;
+	if (!mounted || !hasAuthHydrated || !hasProductsHydrated) return null;
+
+	const filteredProducts = products.filter((product) => {
+		if (selectedCategory && product.categoryId !== selectedCategory) return false;
+		if (selectedTheme && product.themeId !== selectedTheme) return false;
+		return true;
+	});
 
 	// 🚧 maintenance
 	if (MAINTENANCE && !preview) {
 		return <ComingSoon />;
 	}
 
-	// 🔓 site visible
 	return (
-		<div style={{ padding: 40, color: 'white', background: '#020617', minHeight: '100vh' }}>
-			<h1>💎 Boutique LYJY</h1>
+		<main style={{ paddingTop: 80, background: '#020617', minHeight: '100vh', color: 'white' }}>
+			
+			{/* HEADER */}
+			<header style={{
+				position: 'fixed',
+				top: 0,
+				left: 0,
+				width: '100%',
+				height: 80,
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'space-between',
+				padding: '0 20px',
+				background: '#020617',
+				zIndex: 1000
+			}}>
+				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
-			<div style={{ display: 'grid', gap: 20, marginTop: 20 }}>
-				{products.length === 0 ? (
-					<p>Aucun produit pour le moment</p>
-				) : (
-					products.map((product: any) => (
-						<div
-							key={product.id}
-							style={{
-								border: '1px solid rgba(255,255,255,0.1)',
-								padding: 15,
-								borderRadius: 10,
-							}}
-						>
-							<img
-								src={product.image || '/placeholder.png'}
-								style={{
-									width: '100%',
-									height: 150,
-									objectFit: 'cover',
-									borderRadius: 8,
-								}}
-							/>
-
-							<h3>{product.name}</h3>
-							<p>{product.price} €</p>
-
-							<button
-								onClick={() =>
-									addToCart({
-										id: product.id,
-										title: product.name,
-										price: product.price,
-										quantity: 1,
-									})
-								}
-								style={{
-									background: 'gold',
-									padding: '8px 12px',
-									borderRadius: 8,
-									border: 'none',
-									cursor: 'pointer',
-								}}
-							>
-								Ajouter
+				<div style={{ display: 'flex', gap: 10 }}>
+					{user ? (
+						<>
+							<Link href="/account">Mon compte</Link>
+							<button onClick={() => { logout(); clearCart(); }}>
+								Déconnexion
 							</button>
-						</div>
-					))
-				)}
-			</div>
-		</div>
+						</>
+					) : (
+						<>
+							<Link href="/login">Connexion</Link>
+							<Link href="/register">Inscription</Link>
+						</>
+					)}
+				</div>
+			</header>
+
+			{/* MENU */}
+			<button onClick={() => setOpenMenu(!openMenu)} style={{
+				position: 'fixed',
+				top: 90,
+				left: 20
+			}}>
+				☰ Menu
+			</button>
+
+			{openMenu && (
+				<div style={{
+					position: 'fixed',
+					top: 140,
+					left: 20,
+					width: 260,
+					background: '#020617',
+					padding: 16
+				}}>
+					<FiltersMenu
+						selectedCategory={selectedCategory}
+						setSelectedCategory={setSelectedCategory}
+						selectedTheme={selectedTheme}
+						setSelectedTheme={setSelectedTheme}
+					/>
+				</div>
+			)}
+
+			{/* PRODUITS */}
+			<section style={{
+				display: 'grid',
+				gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+				gap: 20,
+				padding: 20
+			}}>
+				{filteredProducts.map((product: any) => (
+					<div key={product.id} style={{
+						border: '1px solid rgba(255,255,255,0.1)',
+						padding: 12,
+						borderRadius: 12
+					}}>
+						<img
+							src={product.image || '/placeholder.png'}
+							style={{ width: '100%', height: 160, objectFit: 'cover' }}
+						/>
+
+						<h3>{product.name}</h3>
+						<p>{product.price} €</p>
+
+						<button
+							onClick={() =>
+								addToCart({
+									id: product.id,
+									title: product.name,
+									price: product.price,
+									quantity: 1,
+								})
+							}
+						>
+							Ajouter
+						</button>
+					</div>
+				))}
+			</section>
+		</main>
 	);
 };
 
