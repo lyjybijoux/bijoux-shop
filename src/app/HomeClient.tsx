@@ -14,14 +14,16 @@ const MAINTENANCE = true;
 
 // 💎 COMING SOON
 const ComingSoon = () => (
-	<div style={{
-		height: '100vh',
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		background: '#020617',
-		color: 'white'
-	}}>
+	<div
+		style={{
+			height: '100vh',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			background: '#020617',
+			color: 'white',
+		}}
+	>
 		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
@@ -56,41 +58,54 @@ const HomeClient = () => {
 
 	if (!mounted || !hasAuthHydrated || !hasProductsHydrated) return null;
 
-	const filteredProducts = products.filter((product) => {
+	const filteredProducts = products.filter((product: any) => {
 		if (selectedCategory && product.categoryId !== selectedCategory) return false;
 		if (selectedTheme && product.themeId !== selectedTheme) return false;
 		return true;
 	});
 
-	// 🚧 maintenance
+	// 🚧 MAINTENANCE
 	if (MAINTENANCE && !preview) {
 		return <ComingSoon />;
 	}
 
 	return (
-		<main style={{ paddingTop: 80, background: '#020617', minHeight: '100vh', color: 'white' }}>
-			
-			{/* HEADER */}
-			<header style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				width: '100%',
-				height: 80,
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				padding: '0 20px',
+		<main
+			style={{
+				paddingTop: 80,
 				background: '#020617',
-				zIndex: 1000
-			}}>
+				minHeight: '100vh',
+				color: 'white',
+			}}
+		>
+			{/* HEADER */}
+			<header
+				style={{
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: 80,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+					padding: '0 20px',
+					background: '#020617',
+					zIndex: 1000,
+				}}
+			>
 				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
 				<div style={{ display: 'flex', gap: 10 }}>
 					{user ? (
 						<>
 							<Link href="/account">Mon compte</Link>
-							<button onClick={() => { logout(); clearCart(); }}>
+							<button
+								onClick={() => {
+									logout();
+									clearCart();
+								}}
+							>
 								Déconnexion
 							</button>
 						</>
@@ -103,24 +118,56 @@ const HomeClient = () => {
 				</div>
 			</header>
 
+			{/* HERO */}
+			<section
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					paddingTop: 60,
+					paddingBottom: 40,
+					textAlign: 'center',
+				}}
+			>
+				<img
+					src="/logo-transparent.png"
+					style={{ width: 220, marginBottom: 10 }}
+				/>
+
+				<p style={{ opacity: 0.7 }}>
+					Des créations uniques inspirées par l’élégance et le raffinement.
+				</p>
+			</section>
+
+			{/* TITRE */}
+			<div style={{ textAlign: 'center', marginBottom: 20 }}>
+				<p style={{ opacity: 0.6 }}>Boutique</p>
+				<h2>Nos créations</h2>
+			</div>
+
 			{/* MENU */}
-			<button onClick={() => setOpenMenu(!openMenu)} style={{
-				position: 'fixed',
-				top: 90,
-				left: 20
-			}}>
+			<button
+				onClick={() => setOpenMenu(!openMenu)}
+				style={{
+					position: 'fixed',
+					top: 90,
+					left: 20,
+				}}
+			>
 				☰ Menu
 			</button>
 
 			{openMenu && (
-				<div style={{
-					position: 'fixed',
-					top: 140,
-					left: 20,
-					width: 260,
-					background: '#020617',
-					padding: 16
-				}}>
+				<div
+					style={{
+						position: 'fixed',
+						top: 140,
+						left: 20,
+						width: 260,
+						background: '#020617',
+						padding: 16,
+					}}
+				>
 					<FiltersMenu
 						selectedCategory={selectedCategory}
 						setSelectedCategory={setSelectedCategory}
@@ -131,21 +178,30 @@ const HomeClient = () => {
 			)}
 
 			{/* PRODUITS */}
-			<section style={{
-				display: 'grid',
-				gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-				gap: 20,
-				padding: 20
-			}}>
+			<section
+				style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+					gap: 20,
+					padding: 20,
+				}}
+			>
 				{filteredProducts.map((product: any) => (
-					<div key={product.id} style={{
-						border: '1px solid rgba(255,255,255,0.1)',
-						padding: 12,
-						borderRadius: 12
-					}}>
+					<div
+						key={product.id}
+						style={{
+							border: '1px solid rgba(255,255,255,0.1)',
+							padding: 12,
+							borderRadius: 12,
+						}}
+					>
 						<img
 							src={product.image || '/placeholder.png'}
-							style={{ width: '100%', height: 160, objectFit: 'cover' }}
+							style={{
+								width: '100%',
+								height: 160,
+								objectFit: 'cover',
+							}}
 						/>
 
 						<h3>{product.name}</h3>
