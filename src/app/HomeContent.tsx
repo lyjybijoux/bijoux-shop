@@ -1,16 +1,40 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+const MAINTENANCE = true;
+
+const ComingSoon = () => {
+	return (
+		<main className="min-h-screen flex items-center justify-center bg-black text-white">
+			<h1>🚧 Maintenance</h1>
+		</main>
+	);
+};
 
 const HomeContent = () => {
-	const searchParams = useSearchParams();
-	const preview = searchParams.get('preview') === 'true';
+	const [preview, setPreview] = useState(false);
+	const [mounted, setMounted] = useState(false);
 
-	if (!preview) {
-		return <div>🚧 Maintenance</div>;
+	useEffect(() => {
+		setMounted(true);
+
+		const params = new URLSearchParams(window.location.search);
+		setPreview(params.get('preview') === 'true');
+	}, []);
+
+	// 🔥 évite crash SSR
+	if (!mounted) return null;
+
+	if (MAINTENANCE && !preview) {
+		return <ComingSoon />;
 	}
 
-	return <div>🔓 Site débloqué</div>;
+	return (
+		<div style={{ padding: 40 }}>
+			<h1>🔓 Site débloqué</h1>
+		</div>
+	);
 };
 
 export default HomeContent;
