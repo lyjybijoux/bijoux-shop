@@ -1,6 +1,7 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -65,9 +66,17 @@ const ComingSoon = () => {
 
 // 🛍️ HOME
 export default function Home() {
+	// 🔥 ANTI SSR (clé du fix)
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) return null;
+
 	const [preview, setPreview] = useState(false);
 
-	// 🔥 lecture URL côté client
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
 		setPreview(params.get('preview') === 'true');
