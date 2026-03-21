@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import useCartStore from '../store/cart';
@@ -47,12 +46,12 @@ const ComingSoon = () => {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							placeholder="Ton email"
-							className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white outline-none"
+							className="px-4 py-3 rounded-lg bg-white/5 border border-white/10"
 						/>
 
 						<button
 							onClick={handleSubmit}
-							className="px-4 py-3 rounded-lg bg-white text-black font-medium"
+							className="px-4 py-3 bg-white text-black rounded-lg"
 						>
 							Être prévenu
 						</button>
@@ -64,9 +63,14 @@ const ComingSoon = () => {
 };
 
 // 🛍️ HOME
-const Home = () => {
-	const searchParams = useSearchParams();
-	const preview = searchParams.get('preview') === 'true';
+export default function Home() {
+	const [preview, setPreview] = useState(false);
+
+	// 🔥 lecture URL côté client
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		setPreview(params.get('preview') === 'true');
+	}, []);
 
 	const addToCart = useCartStore((state) => state.addToCart);
 	const clearCart = useCartStore((state) => state.clearCart);
@@ -106,29 +110,15 @@ const Home = () => {
 				<div style={{ display: 'flex', gap: 10 }}>
 					{user ? (
 						<>
-							<Link href="/account" style={btnOutline}>
-								Mon compte
-							</Link>
-
-							<button
-								style={btnGold}
-								onClick={() => {
-									logout();
-									clearCart();
-								}}
-							>
+							<Link href="/account" style={btnOutline}>Mon compte</Link>
+							<button style={btnGold} onClick={() => { logout(); clearCart(); }}>
 								Déconnexion
 							</button>
 						</>
 					) : (
 						<>
-							<Link href="/login" style={btnOutline}>
-								Connexion
-							</Link>
-
-							<Link href="/register" style={btnGold}>
-								Inscription
-							</Link>
+							<Link href="/login" style={btnOutline}>Connexion</Link>
+							<Link href="/register" style={btnGold}>Inscription</Link>
 						</>
 					)}
 				</div>
@@ -177,77 +167,23 @@ const Home = () => {
 			</section>
 		</main>
 	);
-};
+}
 
-export default Home;
+// 🎨 STYLES
+const navbar = { position: 'fixed' as const, top: 0, left: 0, width: '100%', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', background: '#020617', zIndex: 1000 };
 
-// 🎨 STYLES (corrigés TS)
+const menuButton = { position: 'fixed' as const, top: 90, left: 20, padding: '10px', background: '#020617', color: 'white', border: '1px solid rgba(255,255,255,0.1)' };
 
-const navbar = {
-	position: 'fixed' as const,
-	top: 0,
-	left: 0,
-	width: '100%',
-	height: 80,
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	padding: '0 20px',
-	background: '#020617',
-	zIndex: 1000,
-};
+const menuBox = { position: 'fixed' as const, top: 140, left: 20, width: 260, background: '#020617', padding: 16 };
 
-const menuButton = {
-	position: 'fixed' as const,
-	top: 90,
-	left: 20,
-	padding: '10px',
-	background: '#020617',
-	color: 'white',
-	border: '1px solid rgba(255,255,255,0.1)',
-	cursor: 'pointer',
-};
+const grid = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20, padding: 20 };
 
-const menuBox = {
-	position: 'fixed' as const,
-	top: 140,
-	left: 20,
-	width: 260,
-	background: '#020617',
-	padding: 16,
-};
+const card = { background: '#020617', borderRadius: 12 };
 
-const grid = {
-	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-	gap: 20,
-	padding: 20,
-};
+const image = { width: '100%', height: 150, objectFit: 'cover' as const };
 
-const card = {
-	background: '#020617',
-	borderRadius: 12,
-};
+const content = { padding: 10 };
 
-const image = {
-	width: '100%',
-	height: 150,
-	objectFit: 'cover' as const,
-};
+const btnOutline = { border: '1px solid white', padding: '6px 10px', color: 'white', textDecoration: 'none' };
 
-const content = {
-	padding: 10,
-};
-
-const btnOutline = {
-	border: '1px solid white',
-	padding: '6px 10px',
-	color: 'white',
-	textDecoration: 'none',
-};
-
-const btnGold = {
-	background: 'gold',
-	padding: '6px 10px',
-	color: '#000',
-};
+const btnGold = { background: 'gold', padding: '6px 10px', color: '#000' };
