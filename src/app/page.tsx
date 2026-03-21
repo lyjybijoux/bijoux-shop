@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -66,22 +66,7 @@ const ComingSoon = () => {
 // 🛍️ HOME
 const Home = () => {
 	const searchParams = useSearchParams();
-
-	// 🔐 INIT DIRECT (PAS DE FLASH)
-	const initialAdmin =
-		typeof window !== 'undefined' &&
-		(localStorage.getItem('admin') === 'true' ||
-			searchParams.get('admin') === '0311');
-
-	const [isAdmin, setIsAdmin] = useState(initialAdmin);
-
-	// 🔁 sauvegarde si accès via URL
-	useEffect(() => {
-		if (searchParams.get('admin') === '0311') {
-			localStorage.setItem('admin', 'true');
-			setIsAdmin(true);
-		}
-	}, [searchParams]);
+	const preview = searchParams.get('preview') === 'true';
 
 	const addToCart = useCartStore((state) => state.addToCart);
 	const clearCart = useCartStore((state) => state.clearCart);
@@ -109,7 +94,7 @@ const Home = () => {
 	});
 
 	// 🚧 MAINTENANCE
-	if (MAINTENANCE && !isAdmin) {
+	if (MAINTENANCE && !preview) {
 		return <ComingSoon />;
 	}
 
@@ -196,7 +181,7 @@ const Home = () => {
 
 export default Home;
 
-// 🎨 STYLES
+// 🎨 STYLES (corrigés TS)
 
 const navbar = {
 	position: 'fixed' as const,
