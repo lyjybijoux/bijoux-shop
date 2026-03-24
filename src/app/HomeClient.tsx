@@ -13,39 +13,41 @@ import FiltersMenu from '@/components/FiltersMenu';
 const MAINTENANCE = true;
 
 ////////////////////////////////////////////////////////
-// 💎 BOUTONS (FIX: mis en haut)
+// 💎 BASE BOUTON (ALIGNEMENT FIX)
 ////////////////////////////////////////////////////////
 
-const btnGold = {
-	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
-	color: '#111',
-	padding: '8px 14px',
+const btnBase = {
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	height: 36,
+	padding: '0 14px',
 	borderRadius: 10,
 	border: 'none',
 	fontWeight: 600,
 	cursor: 'pointer',
+	lineHeight: 1,
+	textDecoration: 'none',
+};
+
+const btnGold = {
+	...btnBase,
+	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
+	color: '#111',
 	boxShadow: '0 4px 15px rgba(212,175,55,0.5)',
 };
 
 const btnRuby = {
+	...btnBase,
 	background: 'linear-gradient(135deg,#7f1d1d,#dc2626)',
 	color: 'white',
-	padding: '8px 14px',
-	borderRadius: 10,
-	border: 'none',
-	fontWeight: 600,
-	cursor: 'pointer',
 	boxShadow: '0 4px 15px rgba(220,38,38,0.6)',
 };
 
 const btnSapphire = {
+	...btnBase,
 	background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
 	color: 'white',
-	padding: '8px 14px',
-	borderRadius: 10,
-	border: 'none',
-	fontWeight: 600,
-	cursor: 'pointer',
 	boxShadow: '0 4px 15px rgba(37,99,235,0.6)',
 };
 
@@ -87,7 +89,7 @@ const menuButton = {
 	position: 'fixed' as const,
 	top: 90,
 	left: 20,
-	...btnGold, // ✅ maintenant OK
+	...btnGold,
 };
 
 const menuBox = {
@@ -210,11 +212,11 @@ const HomeClient = () => {
 			<header style={navbar}>
 				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
-				<div style={{ display: 'flex', gap: 10 }}>
+				<div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
 					{user ? (
 						<>
-							<Link href="/account">
-								<span style={btnSapphire}>Mon compte</span>
+							<Link href="/account" style={btnSapphire}>
+								Mon compte
 							</Link>
 
 							<button
@@ -229,12 +231,12 @@ const HomeClient = () => {
 						</>
 					) : (
 						<>
-							<Link href="/login">
-								<span style={btnSapphire}>Connexion</span>
+							<Link href="/login" style={btnSapphire}>
+								Connexion
 							</Link>
 
-							<Link href="/register">
-								<span style={btnGold}>Inscription</span>
+							<Link href="/register" style={btnGold}>
+								Inscription
 							</Link>
 						</>
 					)}
