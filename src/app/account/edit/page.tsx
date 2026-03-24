@@ -37,6 +37,7 @@ const AccountEditPage = () => {
 
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
 	const [showSuggestions, setShowSuggestions] = useState(false);
+	const [loadingGeo, setLoadingGeo] = useState(false);
 
 	////////////////////////////////////////////////////////
 	// INIT
@@ -60,7 +61,7 @@ const AccountEditPage = () => {
 	}, [user, hasHydrated, router]);
 
 	////////////////////////////////////////////////////////
-	// INPUT HANDLER
+	// INPUT
 	////////////////////////////////////////////////////////
 
 	const handleChange =
@@ -73,36 +74,72 @@ const AccountEditPage = () => {
 				[field]: value,
 			}));
 
-			// 🔥 AUTOCOMPLETE UNIQUEMENT SUR STREET
 			if (field === 'street' && value.length > 3) {
 				fetchAddress(value);
 			}
 		};
 
 	////////////////////////////////////////////////////////
-	// FETCH API FRANCE
+	// API ADRESSE
 	////////////////////////////////////////////////////////
 
 	const fetchAddress = async (query: string) => {
-		try {
-			const res = await fetch(
-				`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
-			);
+		const res = await fetch(
+			`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
+		);
 
-			const data = await res.json();
+		const data = await res.json();
 
-			const results = data.features.map((item: any) => ({
-				label: item.properties.label,
-				city: item.properties.city,
-				postcode: item.properties.postcode,
-				name: item.properties.name,
-			}));
+		const results = data.features.map((item: any) => ({
+			label: item.properties.label,
+			city: item.properties.city,
+			postcode: item.properties.postcode,
+			name: item.properties.name,
+		}));
 
-			setSuggestions(results);
-			setShowSuggestions(true);
-		} catch (err) {
-			console.error(err);
+		setSuggestions(results);
+		setShowSuggestions(true);
+	};
+
+	////////////////////////////////////////////////////////
+	// GÉOLOCALISATION
+	////////////////////////////////////////////////////////
+
+	const useMyLocation = () => {
+		if (!navigator.geolocation) {
+			alert('Géolocalisation non supportée');
+			return;
 		}
+
+		setLoadingGeo(true);
+
+		navigator.geolocation.getCurrentPosition(
+			async (pos) => {
+				const { latitude, longitude } = pos.coords;
+
+				const res = await fetch(
+					`https://api-adresse.data.gouv.fr/reverse/?lat=${latitude}&lon=${longitude}`
+				);
+
+				const data = await res.json();
+				const addr = data.features[0]?.properties;
+
+				if (!addr) return;
+
+				setForm((prev) => ({
+					...prev,
+					street: addr.name,
+					city: addr.city,
+					zip: addr.postcode,
+				}));
+
+				setLoadingGeo(false);
+			},
+			() => {
+				alert('Permission refusée');
+				setLoadingGeo(false);
+			}
+		);
 	};
 
 	////////////////////////////////////////////////////////
@@ -136,7 +173,6 @@ const AccountEditPage = () => {
 		});
 
 		alert('Profil mis à jour ✨');
-
 		router.push('/account');
 	};
 
@@ -147,9 +183,7 @@ const AccountEditPage = () => {
 			<div style={wrapper}>
 				<div style={header}>
 					<h1 style={title}>Modifier mes informations</h1>
-					<p style={subtitle}>
-						Mets à jour ton profil en toute simplicité
-					</p>
+					<p style={subtitle}>Ultra rapide grâce à la géolocalisation</p>
 				</div>
 
 				<div style={card}>
@@ -157,18 +191,18 @@ const AccountEditPage = () => {
 						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
 						<Input label="Email" value={form.email} onChange={handleChange('email')} />
 
-						{/* 🔥 STREET AVEC AUTOCOMPLETE */}
+						{/* 🔥 BOUTON GEO */}
+						<button style={geoBtn} onClick={useMyLocation}>
+							{loadingGeo ? 'Localisation...' : '📍 Utiliser ma position'}
+						</button>
+
 						<div style={{ position: 'relative' }}>
 							<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
 
 							{showSuggestions && (
 								<div style={suggestionsBox}>
 									{suggestions.map((s, i) => (
-										<div
-											key={i}
-											style={suggestionItem}
-											onClick={() => selectSuggestion(s)}
-										>
+										<div key={i} style={suggestionItem} onClick={() => selectSuggestion(s)}>
 											{s.label}
 										</div>
 									))}
@@ -201,22 +235,12 @@ export default AccountEditPage;
 // INPUT
 ////////////////////////////////////////////////////////
 
-const Input = ({
-	label,
-	value,
-	onChange,
-}: {
-	label: string;
-	value: string;
-	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}) => {
-	return (
-		<div style={inputWrapper}>
-			<label style={inputLabel}>{label}</label>
-			<input style={input} value={value} onChange={onChange} />
-		</div>
-	);
-};
+const Input = ({ label, value, onChange }: any) => (
+	<div style={inputWrapper}>
+		<label style={inputLabel}>{label}</label>
+		<input style={input} value={value} onChange={onChange} />
+	</div>
+);
 
 ////////////////////////////////////////////////////////
 // STYLES
@@ -230,93 +254,75 @@ const container: CSSProperties = {
 	color: 'white',
 };
 
-const wrapper: CSSProperties = {
-	width: '100%',
-	maxWidth: 720,
-};
+const wrapper = { width: '100%', maxWidth: 720 };
 
-const header: CSSProperties = {
-	marginBottom: 30,
-};
+const header = { marginBottom: 30 };
 
-const title: CSSProperties = {
-	fontSize: 30,
-	fontWeight: 700,
-};
+const title = { fontSize: 30, fontWeight: 700 };
 
-const subtitle: CSSProperties = {
-	opacity: 0.6,
-};
+const subtitle = { opacity: 0.6 };
 
-const card: CSSProperties = {
+const card = {
 	background: 'linear-gradient(180deg,#1e293b,#020617)',
 	borderRadius: 20,
 	padding: 24,
-	border: '1px solid rgba(255,255,255,0.08)',
 };
 
-const formGrid: CSSProperties = {
-	display: 'grid',
-	gap: 16,
-	marginBottom: 24,
-};
+const formGrid = { display: 'grid', gap: 16 };
 
-const inputWrapper: CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	gap: 6,
-};
+const inputWrapper = { display: 'flex', flexDirection: 'column', gap: 6 };
 
-const inputLabel: CSSProperties = {
-	fontSize: 13,
-	opacity: 0.6,
-};
+const inputLabel = { fontSize: 13, opacity: 0.6 };
 
-const input: CSSProperties = {
+const input = {
 	padding: '12px 14px',
 	borderRadius: 12,
-	border: '1px solid rgba(255,255,255,0.1)',
 	background: '#0f172a',
 	color: 'white',
+	border: '1px solid rgba(255,255,255,0.1)',
 };
 
-const suggestionsBox: CSSProperties = {
-	position: 'absolute',
+const geoBtn = {
+	padding: 10,
+	borderRadius: 12,
+	background: '#2563eb',
+	color: 'white',
+	border: 'none',
+	cursor: 'pointer',
+};
+
+const suggestionsBox = {
+	position: 'absolute' as const,
 	top: '100%',
 	left: 0,
 	right: 0,
 	background: '#0f172a',
 	borderRadius: 12,
-	border: '1px solid rgba(255,255,255,0.1)',
-	marginTop: 6,
-	zIndex: 50,
 };
 
-const suggestionItem: CSSProperties = {
+const suggestionItem = {
 	padding: 10,
 	cursor: 'pointer',
-	borderBottom: '1px solid rgba(255,255,255,0.05)',
 };
 
-const actions: CSSProperties = {
+const actions = {
 	display: 'flex',
 	justifyContent: 'space-between',
+	marginTop: 20,
 };
 
-const btnGhost: CSSProperties = {
-	padding: '10px 16px',
+const btnGhost = {
+	padding: 10,
 	borderRadius: 12,
-	border: '1px solid rgba(255,255,255,0.2)',
+	border: '1px solid white',
 	background: 'transparent',
 	color: 'white',
-	cursor: 'pointer',
 };
 
-const btnGold: CSSProperties = {
-	padding: '10px 18px',
+const btnGold = {
+	padding: 10,
 	borderRadius: 12,
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
 	color: '#111',
 	border: 'none',
-	cursor: 'pointer',
 };
