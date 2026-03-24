@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 
 import useAuthStore from '@/store/auth';
 
+type Suggestion = {
+	label: string;
+	city: string;
+	postcode: string;
+	name: string;
+};
+
 type FormState = {
 	firstName: string;
 	email: string;
@@ -28,6 +35,13 @@ const AccountEditPage = () => {
 		zip: '',
 	});
 
+	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+	const [showSuggestions, setShowSuggestions] = useState(false);
+
+	////////////////////////////////////////////////////////
+	// INIT
+	////////////////////////////////////////////////////////
+
 	useEffect(() => {
 		if (!hasHydrated) return;
 
@@ -45,14 +59,70 @@ const AccountEditPage = () => {
 		});
 	}, [user, hasHydrated, router]);
 
+	////////////////////////////////////////////////////////
+	// INPUT HANDLER
+	////////////////////////////////////////////////////////
+
 	const handleChange =
 		(field: keyof FormState) =>
 		(e: ChangeEvent<HTMLInputElement>) => {
+			const value = e.target.value;
+
 			setForm((prev) => ({
 				...prev,
-				[field]: e.target.value,
+				[field]: value,
 			}));
+
+			// 🔥 AUTOCOMPLETE UNIQUEMENT SUR STREET
+			if (field === 'street' && value.length > 3) {
+				fetchAddress(value);
+			}
 		};
+
+	////////////////////////////////////////////////////////
+	// FETCH API FRANCE
+	////////////////////////////////////////////////////////
+
+	const fetchAddress = async (query: string) => {
+		try {
+			const res = await fetch(
+				`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
+			);
+
+			const data = await res.json();
+
+			const results = data.features.map((item: any) => ({
+				label: item.properties.label,
+				city: item.properties.city,
+				postcode: item.properties.postcode,
+				name: item.properties.name,
+			}));
+
+			setSuggestions(results);
+			setShowSuggestions(true);
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	////////////////////////////////////////////////////////
+	// SELECT SUGGESTION
+	////////////////////////////////////////////////////////
+
+	const selectSuggestion = (s: Suggestion) => {
+		setForm((prev) => ({
+			...prev,
+			street: s.name,
+			city: s.city,
+			zip: s.postcode,
+		}));
+
+		setShowSuggestions(false);
+	};
+
+	////////////////////////////////////////////////////////
+	// SUBMIT
+	////////////////////////////////////////////////////////
 
 	const handleSubmit = () => {
 		updateUser({
@@ -86,7 +156,26 @@ const AccountEditPage = () => {
 					<div style={formGrid}>
 						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
 						<Input label="Email" value={form.email} onChange={handleChange('email')} />
-						<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
+
+						{/* 🔥 STREET AVEC AUTOCOMPLETE */}
+						<div style={{ position: 'relative' }}>
+							<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
+
+							{showSuggestions && (
+								<div style={suggestionsBox}>
+									{suggestions.map((s, i) => (
+										<div
+											key={i}
+											style={suggestionItem}
+											onClick={() => selectSuggestion(s)}
+										>
+											{s.label}
+										</div>
+									))}
+								</div>
+							)}
+						</div>
+
 						<Input label="Code postal" value={form.zip} onChange={handleChange('zip')} />
 						<Input label="Ville" value={form.city} onChange={handleChange('city')} />
 					</div>
@@ -137,7 +226,6 @@ const container: CSSProperties = {
 	minHeight: '100vh',
 	display: 'flex',
 	justifyContent: 'center',
-	alignItems: 'flex-start',
 	paddingTop: 80,
 	color: 'white',
 };
@@ -190,6 +278,24 @@ const input: CSSProperties = {
 	border: '1px solid rgba(255,255,255,0.1)',
 	background: '#0f172a',
 	color: 'white',
+};
+
+const suggestionsBox: CSSProperties = {
+	position: 'absolute',
+	top: '100%',
+	left: 0,
+	right: 0,
+	background: '#0f172a',
+	borderRadius: 12,
+	border: '1px solid rgba(255,255,255,0.1)',
+	marginTop: 6,
+	zIndex: 50,
+};
+
+const suggestionItem: CSSProperties = {
+	padding: 10,
+	cursor: 'pointer',
+	borderBottom: '1px solid rgba(255,255,255,0.05)',
 };
 
 const actions: CSSProperties = {
