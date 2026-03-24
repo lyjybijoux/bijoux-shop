@@ -216,7 +216,7 @@ const HomeClient = () => {
 		                })
 	                }
                     >
-	                    Ajouter
+	                    Ajouter au panier
                     </button>
 					</div>
 				))}
