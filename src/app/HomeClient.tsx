@@ -100,18 +100,15 @@ const HomeClient = () => {
 					{user ? (
 						<>
 							<Link href="/account">Mon compte</Link>
-							<button
-								onClick={() => {
-									logout();
-									clearCart();
-								}}
-							>
-								Déconnexion
-							</button>
+							<button style={btnRuby} onClick={() => { logout(); clearCart(); }}>
+	                        Déconnexion
+                            </button>
 						</>
 					) : (
 						<>
-							<Link href="/login">Connexion</Link>
+							<Link href="/login" style={btnSapphire}>
+	                        Connexion
+                            </Link>
 							<Link href="/register">Inscription</Link>
 						</>
 					)}
@@ -147,15 +144,16 @@ const HomeClient = () => {
 
 			{/* MENU */}
 			<button
-				onClick={() => setOpenMenu(!openMenu)}
-				style={{
-					position: 'fixed',
-					top: 90,
-					left: 20,
-				}}
-			>
-				☰ Menu
-			</button>
+	            style={{
+		        ...btnGold,
+		        position: 'fixed',
+		        top: 90,
+		        left: 20
+	            }}
+	            onClick={() => setOpenMenu(!openMenu)}
+>
+	            ☰ Menu
+                </button>
 
 			{openMenu && (
 				<div
@@ -208,17 +206,18 @@ const HomeClient = () => {
 						<p>{product.price} €</p>
 
 						<button
-							onClick={() =>
-								addToCart({
-									id: product.id,
-									title: product.name,
-									price: product.price,
-									quantity: 1,
-								})
-							}
-						>
-							Ajouter
-						</button>
+	                    style={btnGold}
+	                    onClick={() =>
+		                addToCart({
+			            id: product.id,
+			            title: product.name,
+			            price: product.price,
+			            quantity: 1,
+		                })
+	                }
+                    >
+	                    Ajouter
+                    </button>
 					</div>
 				))}
 			</section>
@@ -227,3 +226,42 @@ const HomeClient = () => {
 };
 
 export default HomeClient;
+
+// 💎 STYLES LUXE
+
+const btnGold = {
+	background: 'linear-gradient(135deg, #f7e7a1 0%, #d4af37 45%, #b8962e 100%)',
+	color: '#111',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: `
+		inset 0 1px 1px rgba(255,255,255,0.5),
+		0 4px 12px rgba(212,175,55,0.4)
+	`,
+	transition: 'all 0.2s ease'
+};
+
+const btnRuby = {
+	background: 'linear-gradient(135deg, #7f1d1d, #dc2626)',
+	color: 'white',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: '0 4px 12px rgba(220,38,38,0.5)'
+};
+
+const btnSapphire = {
+	background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+	color: 'white',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: '0 4px 12px rgba(37,99,235,0.5)'
+};
