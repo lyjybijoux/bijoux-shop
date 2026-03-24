@@ -65,30 +65,34 @@ const AccountEditPage = () => {
 
 	return (
 		<main style={container}>
-			{/* HEADER */}
-			<div style={header}>
-				<h1 style={title}>Modifier mes informations</h1>
-				<p style={subtitle}>Mets à jour ton profil en toute simplicité</p>
-			</div>
-
-			{/* CARD */}
-			<div style={card}>
-				<div style={formGrid}>
-					<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
-					<Input label="Email" value={form.email} onChange={handleChange('email')} />
-					<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
-					<Input label="Code postal" value={form.zip} onChange={handleChange('zip')} />
-					<Input label="Ville" value={form.city} onChange={handleChange('city')} />
+			<div style={wrapper}>
+				{/* HEADER */}
+				<div style={header}>
+					<h1 style={title}>Modifier mes informations</h1>
+					<p style={subtitle}>
+						Mets à jour ton profil en toute simplicité
+					</p>
 				</div>
 
-				<div style={actions}>
-					<button style={btnGhost} onClick={() => router.back()}>
-						Annuler
-					</button>
+				{/* CARD */}
+				<div style={card}>
+					<div style={formGrid}>
+						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
+						<Input label="Email" value={form.email} onChange={handleChange('email')} />
+						<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
+						<Input label="Code postal" value={form.zip} onChange={handleChange('zip')} />
+						<Input label="Ville" value={form.city} onChange={handleChange('city')} />
+					</div>
 
-					<button style={btnGold} onClick={handleSubmit}>
-						Enregistrer
-					</button>
+					<div style={actions}>
+						<button style={btnGhost} onClick={() => router.back()}>
+							Annuler
+						</button>
+
+						<button style={btnGold} onClick={handleSubmit}>
+							Enregistrer
+						</button>
+					</div>
 				</div>
 			</div>
 		</main>
@@ -119,13 +123,21 @@ const Input = ({
 };
 
 ////////////////////////////////////////////////////////
-// 🎨 STYLES PREMIUM
+// 🎨 STYLES
 ////////////////////////////////////////////////////////
 
 const container: CSSProperties = {
-	padding: 40,
+	minHeight: '100vh',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'flex-start',
+	paddingTop: 80,
 	color: 'white',
-	maxWidth: 700,
+};
+
+const wrapper: CSSProperties = {
+	width: '100%',
+	maxWidth: 720,
 };
 
 const header: CSSProperties = {
@@ -174,7 +186,6 @@ const input: CSSProperties = {
 	background: '#0f172a',
 	color: 'white',
 	outline: 'none',
-	transition: 'all 0.2s ease',
 };
 
 const actions: CSSProperties = {
