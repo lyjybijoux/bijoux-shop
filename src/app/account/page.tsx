@@ -10,18 +10,14 @@ import useCartStore from '@/store/cart';
 const AccountPage = () => {
 	const router = useRouter();
 
-	// 🔐 Auth
 	const user = useAuthStore((state) => state.user);
 	const logout = useAuthStore((state) => state.logout);
 	const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
-	// 📦 Commandes
 	const orders = useOrdersStore((state) => state.orders);
 
-	// 🛒 Cart
 	const clearCart = useCartStore((state) => state.clearCart);
 
-	// 🔥 REDIRECT
 	useEffect(() => {
 		if (hasHydrated && !user) {
 			router.replace('/login');
@@ -34,18 +30,20 @@ const AccountPage = () => {
 		return <p style={{ padding: 40 }}>Redirection...</p>;
 	}
 
+	const totalOrders = orders.length;
+	const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
+	const totalItems = orders.reduce((sum, order) => sum + order.items.length, 0);
+
 	return (
 		<main style={container}>
-			{/* HEADER */}
 			<div style={header}>
 				<div>
 					<h1 style={title}>Mon compte</h1>
-					<p style={{ opacity: 0.6 }}>
-						Bienvenue {user.firstName || 'utilisateur'} 👋
-					</p>
+					<p style={subtitle}>Bienvenue {user.firstName || 'utilisateur'} 👋</p>
 				</div>
 
 				<button
+					type="button"
 					onClick={() => {
 						logout();
 						clearCart();
@@ -57,73 +55,73 @@ const AccountPage = () => {
 				</button>
 			</div>
 
-			{/* GRID */}
+			<div style={statsGrid}>
+				<div style={statCard}>
+					<p style={statLabel}>Commandes</p>
+					<p style={statValue}>{totalOrders}</p>
+				</div>
+
+				<div style={statCard}>
+					<p style={statLabel}>Articles achetés</p>
+					<p style={statValue}>{totalItems}</p>
+				</div>
+
+				<div style={statCard}>
+					<p style={statLabel}>Total dépensé</p>
+					<p style={statValue}>{totalSpent.toFixed(2)} €</p>
+				</div>
+			</div>
+
 			<div style={grid}>
-				{/* INFOS */}
 				<div style={card}>
 					<h2 style={cardTitle}>👤 Informations</h2>
 
 					<div style={info}>
 						<span style={label}>Prénom</span>
-						<span>{user.firstName}</span>
+						<span>{user.firstName || '—'}</span>
 					</div>
 
 					<div style={info}>
 						<span style={label}>Email</span>
-						<span>{user.email}</span>
-					</div>
-
-					<div style={info}>
-						<span style={label}>Téléphone</span>
-						<span>{user.phone || 'Non renseigné'}</span>
-					</div>
-
-					<div style={info}>
-						<span style={label}>Adresse</span>
-						<span>
-							{user.address
-								? `${user.address.street}, ${user.address.city}`
-								: 'Non renseignée'}
-						</span>
-					</div>
-
-					<div style={info}>
-						<span style={label}>Membre depuis</span>
-						<span>
-							{user.createdAt
-								? new Date(user.createdAt).toLocaleDateString()
-								: '—'}
-						</span>
+						<span>{user.email || '—'}</span>
 					</div>
 
 					<div style={info}>
 						<span style={label}>Statut</span>
-						<span style={{ color: '#22c55e' }}>Actif</span>
+						<span style={statusActive}>Actif</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Nombre de commandes</span>
+						<span>{totalOrders}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Articles commandés</span>
+						<span>{totalItems}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Montant total</span>
+						<span>{totalSpent.toFixed(2)} €</span>
 					</div>
 				</div>
 
-				{/* COMMANDES */}
 				<div style={card}>
 					<h2 style={cardTitle}>🧾 Mes commandes</h2>
 
 					<div style={ordersList}>
 						{orders.length === 0 ? (
-							<p style={{ opacity: 0.6 }}>
-								Aucune commande pour le moment.
-							</p>
+							<p style={emptyText}>Aucune commande pour le moment.</p>
 						) : (
 							orders.map((order) => (
 								<div
 									key={order.id}
 									style={{ ...orderCard, cursor: 'pointer' }}
-									onClick={() =>
-										router.push(`/account/orders/${order.id}`)
-									}
+									onClick={() => router.push(`/account/orders/${order.id}`)}
 								>
 									<div>
-										<p style={orderId}>
-											Commande #{order.id.slice(0, 6)}
-										</p>
+										<p style={orderId}>Commande #{order.id.slice(0, 6)}</p>
 
 										<p style={orderMeta}>
 											{new Date(order.date).toLocaleDateString()} •{' '}
@@ -141,6 +139,7 @@ const AccountPage = () => {
 					</div>
 
 					<button
+						type="button"
 						style={btnOutline}
 						onClick={() => router.push('/')}
 					>
@@ -148,21 +147,26 @@ const AccountPage = () => {
 					</button>
 				</div>
 
-				{/* PARAMÈTRES */}
 				<div style={card}>
 					<h2 style={cardTitle}>⚙️ Paramètres</h2>
 
-					<button style={btnOutline}>
-						Modifier mes informations
-					</button>
+					<p style={settingsText}>
+						Gère ton compte, consulte tes commandes et accède rapidement à la boutique.
+					</p>
 
-					<button style={btnOutline}>
-						Changer mot de passe
-					</button>
+					<div style={actionsColumn}>
+						<button type="button" style={btnOutline}>
+							Modifier mes informations
+						</button>
 
-					<button style={dangerBtn}>
-						Supprimer mon compte
-					</button>
+						<button type="button" style={btnOutline}>
+							Changer mot de passe
+						</button>
+
+						<button type="button" style={dangerBtn}>
+							Supprimer mon compte
+						</button>
+					</div>
 				</div>
 			</div>
 		</main>
@@ -170,10 +174,6 @@ const AccountPage = () => {
 };
 
 export default AccountPage;
-
-//
-// 🎨 STYLES
-//
 
 const container = {
 	padding: 40,
@@ -185,10 +185,46 @@ const header = {
 	justifyContent: 'space-between',
 	alignItems: 'center',
 	marginBottom: 30,
+	gap: 20,
+	flexWrap: 'wrap' as const,
 };
 
 const title = {
 	fontSize: 28,
+	margin: 0,
+};
+
+const subtitle = {
+	opacity: 0.6,
+	marginTop: 6,
+	marginBottom: 0,
+};
+
+const statsGrid = {
+	display: 'grid',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+	gap: 16,
+	marginBottom: 20,
+};
+
+const statCard = {
+	background: '#0f172a',
+	borderRadius: 14,
+	padding: 18,
+	border: '1px solid rgba(255,255,255,0.06)',
+};
+
+const statLabel = {
+	fontSize: 13,
+	opacity: 0.65,
+	margin: 0,
+	marginBottom: 8,
+};
+
+const statValue = {
+	fontSize: 24,
+	fontWeight: 700,
+	margin: 0,
 };
 
 const grid = {
@@ -205,6 +241,7 @@ const card = {
 };
 
 const cardTitle = {
+	marginTop: 0,
 	marginBottom: 15,
 };
 
@@ -212,10 +249,16 @@ const info = {
 	display: 'flex',
 	justifyContent: 'space-between',
 	marginBottom: 10,
+	gap: 16,
 };
 
 const label = {
 	opacity: 0.6,
+};
+
+const statusActive = {
+	color: '#22c55e',
+	fontWeight: 600,
 };
 
 const logoutBtn = {
@@ -247,10 +290,28 @@ const dangerBtn = {
 	cursor: 'pointer',
 };
 
+const actionsColumn = {
+	display: 'flex',
+	flexDirection: 'column' as const,
+	gap: 10,
+};
+
+const settingsText = {
+	opacity: 0.7,
+	marginTop: 0,
+	marginBottom: 10,
+};
+
 const ordersList = {
 	display: 'flex',
 	flexDirection: 'column' as const,
 	gap: 10,
+	marginBottom: 10,
+};
+
+const emptyText = {
+	opacity: 0.6,
+	margin: 0,
 };
 
 const orderCard = {
@@ -265,18 +326,22 @@ const orderCard = {
 
 const orderId = {
 	fontWeight: 600,
+	margin: 0,
 };
 
 const orderMeta = {
 	fontSize: 12,
 	opacity: 0.6,
+	margin: '4px 0 0 0',
 };
 
 const orderTotal = {
 	fontWeight: 600,
+	margin: 0,
 };
 
 const statusPaid = {
 	fontSize: 12,
 	color: '#22c55e',
+	margin: '4px 0 0 0',
 };
