@@ -12,25 +12,153 @@ import FiltersMenu from '@/components/FiltersMenu';
 
 const MAINTENANCE = true;
 
-// 💎 COMING SOON
+////////////////////////////////////////////////////////
+// 💎 BOUTONS (FIX: mis en haut)
+////////////////////////////////////////////////////////
+
+const btnGold = {
+	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
+	color: '#111',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: '0 4px 15px rgba(212,175,55,0.5)',
+};
+
+const btnRuby = {
+	background: 'linear-gradient(135deg,#7f1d1d,#dc2626)',
+	color: 'white',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: '0 4px 15px rgba(220,38,38,0.6)',
+};
+
+const btnSapphire = {
+	background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
+	color: 'white',
+	padding: '8px 14px',
+	borderRadius: 10,
+	border: 'none',
+	fontWeight: 600,
+	cursor: 'pointer',
+	boxShadow: '0 4px 15px rgba(37,99,235,0.6)',
+};
+
+////////////////////////////////////////////////////////
+// 🎨 STYLES
+////////////////////////////////////////////////////////
+
+const main = {
+	paddingTop: 80,
+	background: '#020617',
+	minHeight: '100vh',
+	color: 'white',
+};
+
+const center = {
+	height: '100vh',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	background: '#020617',
+	color: 'white',
+};
+
+const navbar = {
+	position: 'fixed' as const,
+	top: 0,
+	left: 0,
+	width: '100%',
+	height: 80,
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	padding: '0 20px',
+	background: '#020617',
+	zIndex: 1000,
+};
+
+const menuButton = {
+	position: 'fixed' as const,
+	top: 90,
+	left: 20,
+	...btnGold, // ✅ maintenant OK
+};
+
+const menuBox = {
+	position: 'fixed' as const,
+	top: 140,
+	left: 20,
+	width: 260,
+	padding: 16,
+	borderRadius: 16,
+	background: 'rgba(2,6,23,0.9)',
+	backdropFilter: 'blur(12px)',
+	border: '1px solid rgba(255,255,255,0.08)',
+	boxShadow: '0 10px 40px rgba(0,0,0,0.7)',
+};
+
+const hero = {
+	display: 'flex',
+	flexDirection: 'column' as const,
+	alignItems: 'center',
+	paddingTop: 60,
+	paddingBottom: 40,
+};
+
+const heroLogo = {
+	width: 220,
+	marginBottom: 10,
+};
+
+const titleBlock = {
+	textAlign: 'center' as const,
+	marginBottom: 20,
+};
+
+const grid = {
+	display: 'grid',
+	gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+	gap: 20,
+	padding: 20,
+};
+
+const card = {
+	border: '1px solid rgba(255,255,255,0.1)',
+	padding: 12,
+	borderRadius: 12,
+	background: '#020617',
+};
+
+const image = {
+	width: '100%',
+	height: 160,
+	objectFit: 'cover' as const,
+};
+
+////////////////////////////////////////////////////////
+// 🚧 MAINTENANCE
+////////////////////////////////////////////////////////
+
 const ComingSoon = () => (
-	<div
-		style={{
-			height: '100vh',
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			background: '#020617',
-			color: 'white',
-		}}
-	>
+	<div style={center}>
 		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
 
+////////////////////////////////////////////////////////
+// 🧠 COMPONENT
+////////////////////////////////////////////////////////
+
 const HomeClient = () => {
 	const [preview, setPreview] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	const [openMenu, setOpenMenu] = useState(false);
 
 	const addToCart = useCartStore((state) => state.addToCart);
 	const clearCart = useCartStore((state) => state.clearCart);
@@ -47,13 +175,24 @@ const HomeClient = () => {
 
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
-	const [openMenu, setOpenMenu] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
-
 		const params = new URLSearchParams(window.location.search);
 		setPreview(params.get('preview') === 'true');
+	}, []);
+
+	useEffect(() => {
+		const handleClick = (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+
+			if (!target.closest('#menu') && !target.closest('#menu-btn')) {
+				setOpenMenu(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClick);
+		return () => document.removeEventListener('mousedown', handleClick);
 	}, []);
 
 	if (!mounted || !hasAuthHydrated || !hasProductsHydrated) return null;
@@ -64,108 +203,54 @@ const HomeClient = () => {
 		return true;
 	});
 
-	// 🚧 MAINTENANCE
-	if (MAINTENANCE && !preview) {
-		return <ComingSoon />;
-	}
+	if (MAINTENANCE && !preview) return <ComingSoon />;
 
 	return (
-		<main
-			style={{
-				paddingTop: 80,
-				background: '#020617',
-				minHeight: '100vh',
-				color: 'white',
-			}}
-		>
-			{/* HEADER */}
-			<header
-				style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					width: '100%',
-					height: 80,
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					padding: '0 20px',
-					background: '#020617',
-					zIndex: 1000,
-				}}
-			>
+		<main style={main}>
+			<header style={navbar}>
 				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
 				<div style={{ display: 'flex', gap: 10 }}>
 					{user ? (
 						<>
-							<Link href="/account">Mon compte</Link>
-							<button style={btnRuby} onClick={() => { logout(); clearCart(); }}>
-	                        Déconnexion
-                            </button>
+							<Link href="/account">
+								<span style={btnSapphire}>Mon compte</span>
+							</Link>
+
+							<button
+								style={btnRuby}
+								onClick={() => {
+									logout();
+									clearCart();
+								}}
+							>
+								Déconnexion
+							</button>
 						</>
 					) : (
 						<>
-							<Link href="/login" style={btnSapphire}>
-	                        Connexion
-                            </Link>
-							<Link href="/register">Inscription</Link>
+							<Link href="/login">
+								<span style={btnSapphire}>Connexion</span>
+							</Link>
+
+							<Link href="/register">
+								<span style={btnGold}>Inscription</span>
+							</Link>
 						</>
 					)}
 				</div>
 			</header>
 
-			{/* HERO */}
-			<section
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					paddingTop: 60,
-					paddingBottom: 40,
-					textAlign: 'center',
-				}}
-			>
-				<img
-					src="/logo-transparent.png"
-					style={{ width: 220, marginBottom: 10 }}
-				/>
-
-				<p style={{ opacity: 0.7 }}>
-					Des créations uniques inspirées par l’élégance et le raffinement.
-				</p>
-			</section>
-
-			{/* TITRE */}
-			<div style={{ textAlign: 'center', marginBottom: 20 }}>
-				<p style={{ opacity: 0.6 }}>Boutique</p>
-				<h2>Nos créations</h2>
-			</div>
-
-			{/* MENU */}
 			<button
-	            style={{
-		        ...btnGold,
-		        position: 'fixed',
-		        top: 90,
-		        left: 20
-	            }}
-	            onClick={() => setOpenMenu(!openMenu)}
->
-	            ☰ Menu
-                </button>
+				id="menu-btn"
+				style={menuButton}
+				onClick={() => setOpenMenu(!openMenu)}
+			>
+				☰ Menu
+			</button>
 
 			{openMenu && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 140,
-						left: 20,
-						width: 260,
-						background: '#020617',
-						padding: 16,
-					}}
-				>
+				<div id="menu" style={menuBox}>
 					<FiltersMenu
 						selectedCategory={selectedCategory}
 						setSelectedCategory={setSelectedCategory}
@@ -175,49 +260,39 @@ const HomeClient = () => {
 				</div>
 			)}
 
-			{/* PRODUITS */}
-			<section
-				style={{
-					display: 'grid',
-					gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-					gap: 20,
-					padding: 20,
-				}}
-			>
+			<section style={hero}>
+				<img src="/logo-transparent.png" style={heroLogo} />
+				<p style={{ opacity: 0.7 }}>
+					Des créations uniques inspirées par l’élégance et le raffinement.
+				</p>
+			</section>
+
+			<div style={titleBlock}>
+				<p style={{ opacity: 0.6 }}>Boutique</p>
+				<h2>Nos créations</h2>
+			</div>
+
+			<section style={grid}>
 				{filteredProducts.map((product: any) => (
-					<div
-						key={product.id}
-						style={{
-							border: '1px solid rgba(255,255,255,0.1)',
-							padding: 12,
-							borderRadius: 12,
-						}}
-					>
-						<img
-							src={product.image || '/placeholder.png'}
-							style={{
-								width: '100%',
-								height: 160,
-								objectFit: 'cover',
-							}}
-						/>
+					<div key={product.id} style={card}>
+						<img src={product.image} style={image} />
 
 						<h3>{product.name}</h3>
 						<p>{product.price} €</p>
 
 						<button
-	                    style={btnGold}
-	                    onClick={() =>
-		                addToCart({
-			            id: product.id,
-			            title: product.name,
-			            price: product.price,
-			            quantity: 1,
-		                })
-	                }
-                    >
-	                    Ajouter au panier
-                    </button>
+							style={btnGold}
+							onClick={() =>
+								addToCart({
+									id: product.id,
+									title: product.name,
+									price: product.price,
+									quantity: 1,
+								})
+							}
+						>
+							Ajouter au panier
+						</button>
 					</div>
 				))}
 			</section>
@@ -226,42 +301,3 @@ const HomeClient = () => {
 };
 
 export default HomeClient;
-
-// 💎 STYLES LUXE
-
-const btnGold = {
-	background: 'linear-gradient(135deg, #f7e7a1 0%, #d4af37 45%, #b8962e 100%)',
-	color: '#111',
-	padding: '8px 14px',
-	borderRadius: 10,
-	border: 'none',
-	fontWeight: 600,
-	cursor: 'pointer',
-	boxShadow: `
-		inset 0 1px 1px rgba(255,255,255,0.5),
-		0 4px 12px rgba(212,175,55,0.4)
-	`,
-	transition: 'all 0.2s ease'
-};
-
-const btnRuby = {
-	background: 'linear-gradient(135deg, #7f1d1d, #dc2626)',
-	color: 'white',
-	padding: '8px 14px',
-	borderRadius: 10,
-	border: 'none',
-	fontWeight: 600,
-	cursor: 'pointer',
-	boxShadow: '0 4px 12px rgba(220,38,38,0.5)'
-};
-
-const btnSapphire = {
-	background: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
-	color: 'white',
-	padding: '8px 14px',
-	borderRadius: 10,
-	border: 'none',
-	fontWeight: 600,
-	cursor: 'pointer',
-	boxShadow: '0 4px 12px rgba(37,99,235,0.5)'
-};
