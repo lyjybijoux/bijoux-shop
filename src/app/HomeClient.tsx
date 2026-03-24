@@ -480,6 +480,7 @@ const HomeClient = () => {
 									Toutes
 								</button>
 
+l
 								{categories.map((category) => (
 									<button
 										key={category.id}

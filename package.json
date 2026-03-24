@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "autopush": "chokidar \"src/**/*\" -d 3000 -c \"git add . && git diff --cached --quiet || (git commit -m auto && git push)\""
+    "lint": "eslint"
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.11.0",
