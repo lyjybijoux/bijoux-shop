@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import useCartStore from '../store/cart';
@@ -16,7 +16,7 @@ const MAINTENANCE = true;
 // 💎 BUTTON BASE
 ////////////////////////////////////////////////////////
 
-const btnBase: CSSProperties = {
+const btnBase = {
 	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
@@ -29,20 +29,20 @@ const btnBase: CSSProperties = {
 	transition: 'all 0.25s ease',
 };
 
-const btnGold: CSSProperties = {
+const btnGold = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
 	color: '#111',
 	boxShadow: '0 6px 25px rgba(212,175,55,0.7)',
 };
 
-const btnRuby: CSSProperties = {
+const btnRuby = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#7f1d1d,#dc2626)',
 	color: 'white',
 };
 
-const btnSapphire: CSSProperties = {
+const btnSapphire = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
 	color: 'white',
@@ -52,15 +52,15 @@ const btnSapphire: CSSProperties = {
 // 🎨 STYLES
 ////////////////////////////////////////////////////////
 
-const main: CSSProperties = {
+const main = {
 	paddingTop: 80,
 	background: '#020617',
 	minHeight: '100vh',
 	color: 'white',
 };
 
-const navbar: CSSProperties = {
-	position: 'fixed',
+const navbar = {
+	position: 'fixed' as const,
 	top: 0,
 	left: 0,
 	width: '100%',
@@ -73,8 +73,8 @@ const navbar: CSSProperties = {
 	zIndex: 1000,
 };
 
-const drawer = (open: boolean): CSSProperties => ({
-	position: 'fixed',
+const drawer = (open: boolean) => ({
+	position: 'fixed' as const,
 	top: 0,
 	left: 0,
 	height: '100vh',
@@ -87,8 +87,8 @@ const drawer = (open: boolean): CSSProperties => ({
 	zIndex: 2000,
 });
 
-const overlay = (open: boolean): CSSProperties => ({
-	position: 'fixed',
+const overlay = (open: boolean) => ({
+	position: 'fixed' as const,
 	top: 0,
 	left: 0,
 	width: '100%',
@@ -101,7 +101,7 @@ const overlay = (open: boolean): CSSProperties => ({
 	zIndex: 1500,
 });
 
-const menuItem: CSSProperties = {
+const menuItem = {
 	padding: '12px 14px',
 	borderRadius: 14,
 	background: 'rgba(255,255,255,0.04)',
@@ -110,7 +110,7 @@ const menuItem: CSSProperties = {
 	transition: 'all 0.2s ease',
 };
 
-const sectionTitle: CSSProperties = {
+const sectionTitle = {
 	color: '#facc15',
 	fontWeight: 700,
 	fontSize: 18,
@@ -118,38 +118,30 @@ const sectionTitle: CSSProperties = {
 	marginBottom: 10,
 };
 
-const grid: CSSProperties = {
+const grid = {
 	display: 'grid',
 	gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
 	gap: 20,
 	padding: 20,
 };
 
-const card: CSSProperties = {
+const card = {
 	border: '1px solid rgba(255,255,255,0.1)',
 	padding: 12,
 	borderRadius: 12,
 	background: '#020617',
 };
 
-const image: CSSProperties = {
+const image = {
 	width: '100%',
 	height: 160,
-	objectFit: 'cover',
+	objectFit: 'cover' as const,
 };
 
 ////////////////////////////////////////////////////////
 
 const ComingSoon = () => (
-	<div
-		style={{
-			height: '100vh',
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			color: 'white',
-		}}
-	>
+	<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
@@ -186,7 +178,7 @@ const HomeClient = () => {
 					☰ Menu
 				</button>
 
-				<div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+				<div style={{ display: 'flex', gap: 10 }}>
 					{user ? (
 						<>
 							<Link href="/account" style={btnSapphire}>
@@ -220,7 +212,7 @@ const HomeClient = () => {
 			{/* OVERLAY */}
 			<div style={overlay(openMenu)} onClick={() => setOpenMenu(false)} />
 
-			{/* DRAWER */}
+			{/* DRAWER MENU */}
 			<div style={drawer(openMenu)}>
 				<div style={menuItem}>🏠 Accueil</div>
 				<div style={menuItem}>🛒 Panier</div>
