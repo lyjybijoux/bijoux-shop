@@ -21,14 +21,13 @@ const AccountPage = () => {
 	// 🛒 Cart
 	const clearCart = useCartStore((state) => state.clearCart);
 
-	// 🔥 REDIRECT PROPRE
+	// 🔥 REDIRECT
 	useEffect(() => {
 		if (hasHydrated && !user) {
 			router.replace('/login');
 		}
 	}, [user, hasHydrated, router]);
 
-	// 🔥 HYDRATION
 	if (!hasHydrated) return null;
 
 	if (!user) {
@@ -39,7 +38,12 @@ const AccountPage = () => {
 		<main style={container}>
 			{/* HEADER */}
 			<div style={header}>
-				<h1 style={title}>Mon compte</h1>
+				<div>
+					<h1 style={title}>Mon compte</h1>
+					<p style={{ opacity: 0.6 }}>
+						Bienvenue {user.firstName || 'utilisateur'} 👋
+					</p>
+				</div>
 
 				<button
 					onClick={() => {
@@ -67,6 +71,34 @@ const AccountPage = () => {
 					<div style={info}>
 						<span style={label}>Email</span>
 						<span>{user.email}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Téléphone</span>
+						<span>{user.phone || 'Non renseigné'}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Adresse</span>
+						<span>
+							{user.address
+								? `${user.address.street}, ${user.address.city}`
+								: 'Non renseignée'}
+						</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Membre depuis</span>
+						<span>
+							{user.createdAt
+								? new Date(user.createdAt).toLocaleDateString()
+								: '—'}
+						</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Statut</span>
+						<span style={{ color: '#22c55e' }}>Actif</span>
 					</div>
 				</div>
 
@@ -116,12 +148,16 @@ const AccountPage = () => {
 					</button>
 				</div>
 
-				{/* ACTIONS */}
+				{/* PARAMÈTRES */}
 				<div style={card}>
 					<h2 style={cardTitle}>⚙️ Paramètres</h2>
 
 					<button style={btnOutline}>
 						Modifier mes informations
+					</button>
+
+					<button style={btnOutline}>
+						Changer mot de passe
 					</button>
 
 					<button style={dangerBtn}>
