@@ -18,6 +18,7 @@ const AccountEditPage = () => {
 
 	const user = useAuthStore((state) => state.user);
 	const hasHydrated = useAuthStore((state) => state.hasHydrated);
+	const updateUser = useAuthStore((state) => state.updateUser);
 
 	const [form, setForm] = useState<FormState>({
 		firstName: '',
@@ -35,14 +36,12 @@ const AccountEditPage = () => {
 			return;
 		}
 
-		const address = (user as any).address;
-
 		setForm({
 			firstName: user.firstName || '',
 			email: user.email || '',
-			street: address?.street || '',
-			city: address?.city || '',
-			zip: address?.zip || '',
+			street: user.address?.street || '',
+			city: user.address?.city || '',
+			zip: user.address?.zip || '',
 		});
 	}, [user, hasHydrated, router]);
 
@@ -56,8 +55,18 @@ const AccountEditPage = () => {
 		};
 
 	const handleSubmit = () => {
-		console.log('SAVE', form);
-		alert('Sauvegarde réussie ✨');
+		updateUser({
+			firstName: form.firstName,
+			email: form.email,
+			address: {
+				street: form.street,
+				city: form.city,
+				zip: form.zip,
+			},
+		});
+
+		alert('Profil mis à jour ✨');
+
 		router.push('/account');
 	};
 
@@ -66,7 +75,6 @@ const AccountEditPage = () => {
 	return (
 		<main style={container}>
 			<div style={wrapper}>
-				{/* HEADER */}
 				<div style={header}>
 					<h1 style={title}>Modifier mes informations</h1>
 					<p style={subtitle}>
@@ -74,7 +82,6 @@ const AccountEditPage = () => {
 					</p>
 				</div>
 
-				{/* CARD */}
 				<div style={card}>
 					<div style={formGrid}>
 						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
@@ -102,7 +109,7 @@ const AccountEditPage = () => {
 export default AccountEditPage;
 
 ////////////////////////////////////////////////////////
-// 💎 INPUT COMPONENT
+// INPUT
 ////////////////////////////////////////////////////////
 
 const Input = ({
@@ -123,7 +130,7 @@ const Input = ({
 };
 
 ////////////////////////////////////////////////////////
-// 🎨 STYLES
+// STYLES
 ////////////////////////////////////////////////////////
 
 const container: CSSProperties = {
@@ -147,7 +154,6 @@ const header: CSSProperties = {
 const title: CSSProperties = {
 	fontSize: 30,
 	fontWeight: 700,
-	marginBottom: 5,
 };
 
 const subtitle: CSSProperties = {
@@ -159,7 +165,6 @@ const card: CSSProperties = {
 	borderRadius: 20,
 	padding: 24,
 	border: '1px solid rgba(255,255,255,0.08)',
-	boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
 };
 
 const formGrid: CSSProperties = {
@@ -185,7 +190,6 @@ const input: CSSProperties = {
 	border: '1px solid rgba(255,255,255,0.1)',
 	background: '#0f172a',
 	color: 'white',
-	outline: 'none',
 };
 
 const actions: CSSProperties = {
@@ -196,8 +200,8 @@ const actions: CSSProperties = {
 const btnGhost: CSSProperties = {
 	padding: '10px 16px',
 	borderRadius: 12,
-	background: 'transparent',
 	border: '1px solid rgba(255,255,255,0.2)',
+	background: 'transparent',
 	color: 'white',
 	cursor: 'pointer',
 };
@@ -209,5 +213,4 @@ const btnGold: CSSProperties = {
 	color: '#111',
 	border: 'none',
 	cursor: 'pointer',
-	boxShadow: '0 8px 25px rgba(212,175,55,0.4)',
 };
