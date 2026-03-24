@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 
 import useAuthStore from '@/store/auth';
@@ -46,8 +46,6 @@ const AccountEditPage = () => {
 		});
 	}, [user, hasHydrated, router]);
 
-	if (!hasHydrated || !user) return null;
-
 	const handleChange =
 		(field: keyof FormState) =>
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -58,72 +56,37 @@ const AccountEditPage = () => {
 		};
 
 	const handleSubmit = () => {
-		console.log('SAVE USER →', form);
-
-		// 🔥 ici tu brancheras ton backend / firebase / API
-
-		alert('Informations mises à jour (simulation)');
+		console.log('SAVE', form);
+		alert('Sauvegarde réussie ✨');
 		router.push('/account');
 	};
 
+	if (!hasHydrated || !user) return null;
+
 	return (
 		<main style={container}>
+			{/* HEADER */}
 			<div style={header}>
 				<h1 style={title}>Modifier mes informations</h1>
+				<p style={subtitle}>Mets à jour ton profil en toute simplicité</p>
 			</div>
 
+			{/* CARD */}
 			<div style={card}>
 				<div style={formGrid}>
-					<input
-						style={input}
-						placeholder="Prénom"
-						value={form.firstName}
-						onChange={handleChange('firstName')}
-					/>
-
-					<input
-						style={input}
-						placeholder="Email"
-						value={form.email}
-						onChange={handleChange('email')}
-					/>
-
-					<input
-						style={input}
-						placeholder="Adresse"
-						value={form.street}
-						onChange={handleChange('street')}
-					/>
-
-					<input
-						style={input}
-						placeholder="Code postal"
-						value={form.zip}
-						onChange={handleChange('zip')}
-					/>
-
-					<input
-						style={input}
-						placeholder="Ville"
-						value={form.city}
-						onChange={handleChange('city')}
-					/>
+					<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
+					<Input label="Email" value={form.email} onChange={handleChange('email')} />
+					<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
+					<Input label="Code postal" value={form.zip} onChange={handleChange('zip')} />
+					<Input label="Ville" value={form.city} onChange={handleChange('city')} />
 				</div>
 
 				<div style={actions}>
-					<button
-						type="button"
-						style={btnOutline}
-						onClick={() => router.back()}
-					>
+					<button style={btnGhost} onClick={() => router.back()}>
 						Annuler
 					</button>
 
-					<button
-						type="button"
-						style={btnGold}
-						onClick={handleSubmit}
-					>
+					<button style={btnGold} onClick={handleSubmit}>
 						Enregistrer
 					</button>
 				</div>
@@ -134,65 +97,106 @@ const AccountEditPage = () => {
 
 export default AccountEditPage;
 
-//
-// 🎨 STYLES
-//
+////////////////////////////////////////////////////////
+// 💎 INPUT COMPONENT
+////////////////////////////////////////////////////////
 
-const container = {
+const Input = ({
+	label,
+	value,
+	onChange,
+}: {
+	label: string;
+	value: string;
+	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}) => {
+	return (
+		<div style={inputWrapper}>
+			<label style={inputLabel}>{label}</label>
+			<input style={input} value={value} onChange={onChange} />
+		</div>
+	);
+};
+
+////////////////////////////////////////////////////////
+// 🎨 STYLES PREMIUM
+////////////////////////////////////////////////////////
+
+const container: CSSProperties = {
 	padding: 40,
 	color: 'white',
+	maxWidth: 700,
 };
 
-const header = {
-	marginBottom: 20,
+const header: CSSProperties = {
+	marginBottom: 30,
 };
 
-const title = {
-	fontSize: 26,
+const title: CSSProperties = {
+	fontSize: 30,
+	fontWeight: 700,
+	marginBottom: 5,
 };
 
-const card = {
-	background: '#1e293b',
-	borderRadius: 16,
-	padding: 20,
+const subtitle: CSSProperties = {
+	opacity: 0.6,
+};
+
+const card: CSSProperties = {
+	background: 'linear-gradient(180deg,#1e293b,#020617)',
+	borderRadius: 20,
+	padding: 24,
 	border: '1px solid rgba(255,255,255,0.08)',
-	maxWidth: 600,
+	boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
 };
 
-const formGrid = {
+const formGrid: CSSProperties = {
 	display: 'grid',
-	gap: 12,
-	marginBottom: 20,
+	gap: 16,
+	marginBottom: 24,
 };
 
-const input = {
+const inputWrapper: CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 6,
+};
+
+const inputLabel: CSSProperties = {
+	fontSize: 13,
+	opacity: 0.6,
+};
+
+const input: CSSProperties = {
 	padding: '12px 14px',
-	borderRadius: 10,
-	border: '1px solid rgba(255,255,255,0.15)',
+	borderRadius: 12,
+	border: '1px solid rgba(255,255,255,0.1)',
 	background: '#0f172a',
 	color: 'white',
+	outline: 'none',
+	transition: 'all 0.2s ease',
 };
 
-const actions = {
+const actions: CSSProperties = {
 	display: 'flex',
 	justifyContent: 'space-between',
-	gap: 10,
 };
 
-const btnOutline = {
-	padding: '10px 14px',
-	borderRadius: 10,
+const btnGhost: CSSProperties = {
+	padding: '10px 16px',
+	borderRadius: 12,
 	background: 'transparent',
 	border: '1px solid rgba(255,255,255,0.2)',
 	color: 'white',
 	cursor: 'pointer',
 };
 
-const btnGold = {
-	padding: '10px 14px',
-	borderRadius: 10,
+const btnGold: CSSProperties = {
+	padding: '10px 18px',
+	borderRadius: 12,
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
 	color: '#111',
 	border: 'none',
 	cursor: 'pointer',
+	boxShadow: '0 8px 25px rgba(212,175,55,0.4)',
 };
