@@ -8,7 +8,6 @@ import useAuthStore from '../store/auth';
 import useAdminProductsStore from '../store/adminProducts';
 import useAdminCategoriesStore from '../store/adminCategories';
 import useAdminThemesStore from '../store/adminThemes';
-import FiltersMenu from '@/components/FiltersMenu';
 
 const MAINTENANCE = true;
 
@@ -19,6 +18,16 @@ type ProductItem = {
 	image?: string;
 	categoryId?: string | null;
 	themeId?: string | null;
+};
+
+type CategoryItem = {
+	id: string;
+	name: string;
+};
+
+type ThemeItem = {
+	id: string;
+	name: string;
 };
 
 ////////////////////////////////////////////////////////
@@ -62,8 +71,31 @@ const btnSapphire: CSSProperties = {
 	boxShadow: '0 10px 30px rgba(37,99,235,0.28)',
 };
 
+const filterChipBase: CSSProperties = {
+	width: '100%',
+	display: 'flex',
+	alignItems: 'center',
+	padding: '14px 16px',
+	borderRadius: 14,
+	border: '1px solid rgba(255,255,255,0.06)',
+	background: 'rgba(255,255,255,0.03)',
+	color: '#e5e7eb',
+	fontWeight: 700,
+	fontSize: 16,
+	cursor: 'pointer',
+	textAlign: 'left',
+	transition: 'opacity 180ms ease, transform 180ms ease, border-color 180ms ease',
+};
+
+const filterChipActive: CSSProperties = {
+	background: 'linear-gradient(90deg, rgba(250,204,21,0.95) 0%, rgba(212,175,55,0.72) 58%, rgba(212,175,55,0.06) 100%)',
+	color: '#fff4bf',
+	border: '1px solid rgba(250,204,21,0.22)',
+	boxShadow: '0 10px 24px rgba(212,175,55,0.18)',
+};
+
 ////////////////////////////////////////////////////////
-// 🎨 STYLES GLOBAUX
+// 🎨 STYLES
 ////////////////////////////////////////////////////////
 
 const main: CSSProperties = {
@@ -131,7 +163,6 @@ const drawer = (open: boolean): CSSProperties => ({
 	width: 320,
 	maxWidth: 'calc(100vw - 24px)',
 	height: '100vh',
-	padding: '22px 18px 18px',
 	background: 'linear-gradient(180deg, rgba(2,6,23,0.98), rgba(15,23,42,0.98))',
 	backdropFilter: 'blur(18px)',
 	borderRight: '1px solid rgba(255,255,255,0.06)',
@@ -139,9 +170,17 @@ const drawer = (open: boolean): CSSProperties => ({
 	transform: open ? 'translateX(0)' : 'translateX(-105%)',
 	transition: 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)',
 	zIndex: 1500,
+	overflowY: 'auto',
+	overflowX: 'hidden',
+	WebkitOverflowScrolling: 'touch',
+});
+
+const drawerInner: CSSProperties = {
+	padding: '22px 18px 32px',
+	minHeight: '100%',
 	display: 'flex',
 	flexDirection: 'column',
-});
+};
 
 const drawerHeader: CSSProperties = {
 	display: 'flex',
@@ -168,11 +207,12 @@ const closeButton: CSSProperties = {
 	color: '#ffffff',
 	cursor: 'pointer',
 	fontSize: 18,
+	flexShrink: 0,
 };
 
 const drawerLinks: CSSProperties = {
 	display: 'grid',
-	gap: 10,
+	gap: 14,
 	marginBottom: 18,
 };
 
@@ -180,13 +220,14 @@ const drawerLink: CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 12,
-	padding: '14px 16px',
-	borderRadius: 16,
-	background: 'rgba(255,255,255,0.04)',
-	border: '1px solid rgba(255,255,255,0.05)',
+	padding: '18px 18px',
+	borderRadius: 20,
+	background: 'linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025))',
+	border: '1px solid rgba(255,255,255,0.06)',
 	color: '#e5e7eb',
 	textDecoration: 'none',
-	fontWeight: 700,
+	fontWeight: 800,
+	fontSize: 17,
 	boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
 };
 
@@ -202,6 +243,18 @@ const drawerHint: CSSProperties = {
 	color: 'rgba(255,255,255,0.58)',
 	marginTop: 8,
 	marginBottom: 14,
+};
+
+const sectionTitle: CSSProperties = {
+	color: '#fde047',
+	fontWeight: 800,
+	fontSize: 18,
+	margin: '0 0 12px 0',
+};
+
+const filterList: CSSProperties = {
+	display: 'grid',
+	gap: 10,
 };
 
 const hero: CSSProperties = {
@@ -289,8 +342,8 @@ const HomeClient = () => {
 	const products = useAdminProductsStore((state) => state.products) as ProductItem[];
 	const hasProductsHydrated = useAdminProductsStore((state) => state.hasHydrated);
 
-	useAdminCategoriesStore((state) => state.categories);
-	useAdminThemesStore((state) => state.themes);
+	const categories = useAdminCategoriesStore((state) => state.categories) as CategoryItem[];
+	const themes = useAdminThemesStore((state) => state.themes) as ThemeItem[];
 
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
@@ -374,49 +427,106 @@ const HomeClient = () => {
 			<div style={overlay(openMenu)} onClick={() => setOpenMenu(false)} />
 
 			<aside style={drawer(openMenu)} aria-hidden={!openMenu}>
-				<div style={drawerHeader}>
-					<div style={drawerTitle}>Navigation</div>
+				<div style={drawerInner}>
+					<div style={drawerHeader}>
+						<div style={drawerTitle}>Navigation</div>
 
-					<button
-						type="button"
-						style={closeButton}
-						onClick={() => setOpenMenu(false)}
-						aria-label="Fermer le menu"
-					>
-						✕
-					</button>
-				</div>
+						<button
+							type="button"
+							style={closeButton}
+							onClick={() => setOpenMenu(false)}
+							aria-label="Fermer le menu"
+						>
+							✕
+						</button>
+					</div>
 
-				<div style={drawerLinks}>
-					<Link href="/" style={drawerLink} onClick={() => setOpenMenu(false)}>
-						<span aria-hidden="true">🏠</span>
-						<span>Accueil</span>
-					</Link>
+					<div style={drawerLinks}>
+						<Link href="/" style={drawerLink} onClick={() => setOpenMenu(false)}>
+							<span aria-hidden="true">🏠</span>
+							<span>Accueil</span>
+						</Link>
 
-					<Link href="/cart" style={drawerLink} onClick={() => setOpenMenu(false)}>
-						<span aria-hidden="true">🛒</span>
-						<span>Panier</span>
-					</Link>
+						<Link href="/cart" style={drawerLink} onClick={() => setOpenMenu(false)}>
+							<span aria-hidden="true">🛒</span>
+							<span>Panier</span>
+						</Link>
 
-					<Link href="/contact" style={drawerLink} onClick={() => setOpenMenu(false)}>
-						<span aria-hidden="true">✉️</span>
-						<span>Contact</span>
-					</Link>
-				</div>
+						<Link href="/contact" style={drawerLink} onClick={() => setOpenMenu(false)}>
+							<span aria-hidden="true">✉️</span>
+							<span>Contact</span>
+						</Link>
+					</div>
 
-				<div style={drawerSection}>
-					<div style={drawerTitle}>Filtres</div>
-					<p style={drawerHint}>
-						Affûte la vitrine, choisis une catégorie ou un thème pour ne garder que les
-						pépites.
-					</p>
+					<div style={drawerSection}>
+						<div style={drawerTitle}>Filtres</div>
+						<p style={drawerHint}>
+							Affûte la vitrine, choisis une catégorie ou un thème pour ne garder que les
+							pépites.
+						</p>
 
-					<FiltersMenu
-						selectedCategory={selectedCategory}
-						setSelectedCategory={setSelectedCategory}
-						selectedTheme={selectedTheme}
-						setSelectedTheme={setSelectedTheme}
-					/>
+						<div style={{ marginBottom: 22 }}>
+							<h3 style={sectionTitle}>Catégories</h3>
+
+							<div style={filterList}>
+								<button
+									type="button"
+									style={{
+										...filterChipBase,
+										...(selectedCategory === null ? filterChipActive : null),
+									}}
+									onClick={() => setSelectedCategory(null)}
+								>
+									Toutes
+								</button>
+
+								{categories.map((category) => (
+									<button
+										key={category.id}
+										type="button"
+										style={{
+											...filterChipBase,
+											...(selectedCategory === category.id ? filterChipActive : null),
+										}}
+										onClick={() => setSelectedCategory(category.id)}
+									>
+										{category.name}
+									</button>
+								))}
+							</div>
+						</div>
+
+						<div>
+							<h3 style={sectionTitle}>Thèmes</h3>
+
+							<div style={filterList}>
+								<button
+									type="button"
+									style={{
+										...filterChipBase,
+										...(selectedTheme === null ? filterChipActive : null),
+									}}
+									onClick={() => setSelectedTheme(null)}
+								>
+									Tous
+								</button>
+
+								{themes.map((theme) => (
+									<button
+										key={theme.id}
+										type="button"
+										style={{
+											...filterChipBase,
+											...(selectedTheme === theme.id ? filterChipActive : null),
+										}}
+										onClick={() => setSelectedTheme(theme.id)}
+									>
+										{theme.name}
+									</button>
+								))}
+							</div>
+						</div>
+					</div>
 				</div>
 			</aside>
 
