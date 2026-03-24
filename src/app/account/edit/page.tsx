@@ -1,6 +1,11 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent, type CSSProperties } from 'react';
+import {
+	useEffect,
+	useState,
+	type ChangeEvent,
+	type CSSProperties,
+} from 'react';
 import { useRouter } from 'next/navigation';
 
 import useAuthStore from '@/store/auth';
@@ -90,7 +95,7 @@ const AccountEditPage = () => {
 
 		const data = await res.json();
 
-		const results = data.features.map((item: any) => ({
+		const results: Suggestion[] = data.features.map((item: any) => ({
 			label: item.properties.label,
 			city: item.properties.city,
 			postcode: item.properties.postcode,
@@ -102,14 +107,11 @@ const AccountEditPage = () => {
 	};
 
 	////////////////////////////////////////////////////////
-	// GÉOLOCALISATION
+	// GEO
 	////////////////////////////////////////////////////////
 
 	const useMyLocation = () => {
-		if (!navigator.geolocation) {
-			alert('Géolocalisation non supportée');
-			return;
-		}
+		if (!navigator.geolocation) return;
 
 		setLoadingGeo(true);
 
@@ -136,14 +138,14 @@ const AccountEditPage = () => {
 				setLoadingGeo(false);
 			},
 			() => {
-				alert('Permission refusée');
 				setLoadingGeo(false);
+				alert('Permission refusée');
 			}
 		);
 	};
 
 	////////////////////////////////////////////////////////
-	// SELECT SUGGESTION
+	// SELECT
 	////////////////////////////////////////////////////////
 
 	const selectSuggestion = (s: Suggestion) => {
@@ -173,6 +175,7 @@ const AccountEditPage = () => {
 		});
 
 		alert('Profil mis à jour ✨');
+
 		router.push('/account');
 	};
 
@@ -183,7 +186,7 @@ const AccountEditPage = () => {
 			<div style={wrapper}>
 				<div style={header}>
 					<h1 style={title}>Modifier mes informations</h1>
-					<p style={subtitle}>Ultra rapide grâce à la géolocalisation</p>
+					<p style={subtitle}>Adresse intelligente 🚀</p>
 				</div>
 
 				<div style={card}>
@@ -191,7 +194,6 @@ const AccountEditPage = () => {
 						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
 						<Input label="Email" value={form.email} onChange={handleChange('email')} />
 
-						{/* 🔥 BOUTON GEO */}
 						<button style={geoBtn} onClick={useMyLocation}>
 							{loadingGeo ? 'Localisation...' : '📍 Utiliser ma position'}
 						</button>
@@ -202,7 +204,11 @@ const AccountEditPage = () => {
 							{showSuggestions && (
 								<div style={suggestionsBox}>
 									{suggestions.map((s, i) => (
-										<div key={i} style={suggestionItem} onClick={() => selectSuggestion(s)}>
+										<div
+											key={i}
+											style={suggestionItem}
+											onClick={() => selectSuggestion(s)}
+										>
 											{s.label}
 										</div>
 									))}
@@ -232,10 +238,16 @@ const AccountEditPage = () => {
 export default AccountEditPage;
 
 ////////////////////////////////////////////////////////
-// INPUT
+// INPUT (SANS ANY)
 ////////////////////////////////////////////////////////
 
-const Input = ({ label, value, onChange }: any) => (
+type InputProps = {
+	label: string;
+	value: string;
+	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+};
+
+const Input = ({ label, value, onChange }: InputProps) => (
 	<div style={inputWrapper}>
 		<label style={inputLabel}>{label}</label>
 		<input style={input} value={value} onChange={onChange} />
@@ -243,7 +255,7 @@ const Input = ({ label, value, onChange }: any) => (
 );
 
 ////////////////////////////////////////////////////////
-// STYLES
+// STYLES (FIX TS)
 ////////////////////////////////////////////////////////
 
 const container: CSSProperties = {
@@ -254,27 +266,47 @@ const container: CSSProperties = {
 	color: 'white',
 };
 
-const wrapper = { width: '100%', maxWidth: 720 };
+const wrapper: CSSProperties = {
+	width: '100%',
+	maxWidth: 720,
+};
 
-const header = { marginBottom: 30 };
+const header: CSSProperties = {
+	marginBottom: 30,
+};
 
-const title = { fontSize: 30, fontWeight: 700 };
+const title: CSSProperties = {
+	fontSize: 30,
+	fontWeight: 700,
+};
 
-const subtitle = { opacity: 0.6 };
+const subtitle: CSSProperties = {
+	opacity: 0.6,
+};
 
-const card = {
+const card: CSSProperties = {
 	background: 'linear-gradient(180deg,#1e293b,#020617)',
 	borderRadius: 20,
 	padding: 24,
 };
 
-const formGrid = { display: 'grid', gap: 16 };
+const formGrid: CSSProperties = {
+	display: 'grid',
+	gap: 16,
+};
 
-const inputWrapper = { display: 'flex', flexDirection: 'column', gap: 6 };
+const inputWrapper: CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 6,
+};
 
-const inputLabel = { fontSize: 13, opacity: 0.6 };
+const inputLabel: CSSProperties = {
+	fontSize: 13,
+	opacity: 0.6,
+};
 
-const input = {
+const input: CSSProperties = {
 	padding: '12px 14px',
 	borderRadius: 12,
 	background: '#0f172a',
@@ -282,7 +314,7 @@ const input = {
 	border: '1px solid rgba(255,255,255,0.1)',
 };
 
-const geoBtn = {
+const geoBtn: CSSProperties = {
 	padding: 10,
 	borderRadius: 12,
 	background: '#2563eb',
@@ -291,27 +323,28 @@ const geoBtn = {
 	cursor: 'pointer',
 };
 
-const suggestionsBox = {
-	position: 'absolute' as const,
+const suggestionsBox: CSSProperties = {
+	position: 'absolute',
 	top: '100%',
 	left: 0,
 	right: 0,
 	background: '#0f172a',
 	borderRadius: 12,
+	zIndex: 50,
 };
 
-const suggestionItem = {
+const suggestionItem: CSSProperties = {
 	padding: 10,
 	cursor: 'pointer',
 };
 
-const actions = {
+const actions: CSSProperties = {
 	display: 'flex',
 	justifyContent: 'space-between',
 	marginTop: 20,
 };
 
-const btnGhost = {
+const btnGhost: CSSProperties = {
 	padding: 10,
 	borderRadius: 12,
 	border: '1px solid white',
@@ -319,7 +352,7 @@ const btnGhost = {
 	color: 'white',
 };
 
-const btnGold = {
+const btnGold: CSSProperties = {
 	padding: 10,
 	borderRadius: 12,
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
