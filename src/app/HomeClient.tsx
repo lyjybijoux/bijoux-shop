@@ -171,8 +171,6 @@ const drawer = (open: boolean): CSSProperties => ({
 	transition: 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)',
 	zIndex: 1500,
 	overflowY: 'auto',
-	overflowX: 'hidden',
-	WebkitOverflowScrolling: 'touch',
 });
 
 const drawerInner: CSSProperties = {
@@ -194,7 +192,6 @@ const drawerHeader: CSSProperties = {
 const drawerTitle: CSSProperties = {
 	fontSize: 18,
 	fontWeight: 800,
-	letterSpacing: 0.3,
 	color: '#f8fafc',
 };
 
@@ -207,7 +204,6 @@ const closeButton: CSSProperties = {
 	color: '#ffffff',
 	cursor: 'pointer',
 	fontSize: 18,
-	flexShrink: 0,
 };
 
 const drawerLinks: CSSProperties = {
@@ -220,15 +216,13 @@ const drawerLink: CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
 	gap: 12,
-	padding: '18px 18px',
+	padding: '18px',
 	borderRadius: 20,
-	background: 'linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.025))',
+	background: 'rgba(255,255,255,0.04)',
 	border: '1px solid rgba(255,255,255,0.06)',
 	color: '#e5e7eb',
 	textDecoration: 'none',
 	fontWeight: 800,
-	fontSize: 17,
-	boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
 };
 
 const drawerSection: CSSProperties = {
@@ -237,19 +231,10 @@ const drawerSection: CSSProperties = {
 	borderTop: '1px solid rgba(255,255,255,0.06)',
 };
 
-const drawerHint: CSSProperties = {
-	fontSize: 13,
-	lineHeight: 1.5,
-	color: 'rgba(255,255,255,0.58)',
-	marginTop: 8,
-	marginBottom: 14,
-};
-
 const sectionTitle: CSSProperties = {
 	color: '#fde047',
 	fontWeight: 800,
 	fontSize: 18,
-	margin: '0 0 12px 0',
 };
 
 const filterList: CSSProperties = {
@@ -263,19 +248,16 @@ const hero: CSSProperties = {
 	alignItems: 'center',
 	paddingTop: 48,
 	paddingBottom: 36,
-	paddingInline: 20,
 };
 
 const heroLogo: CSSProperties = {
 	width: 220,
 	marginBottom: 12,
-	filter: 'drop-shadow(0 16px 30px rgba(0,0,0,0.45))',
 };
 
 const titleBlock: CSSProperties = {
 	textAlign: 'center',
 	marginBottom: 20,
-	paddingInline: 20,
 };
 
 const grid: CSSProperties = {
@@ -289,8 +271,7 @@ const card: CSSProperties = {
 	border: '1px solid rgba(255,255,255,0.08)',
 	padding: 12,
 	borderRadius: 18,
-	background: 'linear-gradient(180deg, rgba(15,23,42,0.9), rgba(2,6,23,0.95))',
-	boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
+	background: '#020617',
 };
 
 const image: CSSProperties = {
@@ -299,22 +280,17 @@ const image: CSSProperties = {
 	objectFit: 'cover',
 	borderRadius: 12,
 	marginBottom: 10,
-	background: 'rgba(255,255,255,0.04)',
 };
 
 const productTitle: CSSProperties = {
 	fontSize: 18,
 	fontWeight: 700,
-	margin: '0 0 8px 0',
 };
 
 const productPrice: CSSProperties = {
-	margin: '0 0 14px 0',
-	opacity: 0.86,
+	marginBottom: 10,
 };
 
-////////////////////////////////////////////////////////
-// 🚧 MAINTENANCE
 ////////////////////////////////////////////////////////
 
 const ComingSoon = () => (
@@ -324,54 +300,39 @@ const ComingSoon = () => (
 );
 
 ////////////////////////////////////////////////////////
-// 🧠 COMPONENT
-////////////////////////////////////////////////////////
 
 const HomeClient = () => {
 	const [preview, setPreview] = useState(false);
 	const [mounted, setMounted] = useState(false);
 	const [openMenu, setOpenMenu] = useState(false);
 
-	const addToCart = useCartStore((state) => state.addToCart);
-	const clearCart = useCartStore((state) => state.clearCart);
+	const addToCart = useCartStore((s) => s.addToCart);
+	const clearCart = useCartStore((s) => s.clearCart);
 
-	const user = useAuthStore((state) => state.user);
-	const logout = useAuthStore((state) => state.logout);
-	const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
+	const user = useAuthStore((s) => s.user);
+	const logout = useAuthStore((s) => s.logout);
+	const hasAuthHydrated = useAuthStore((s) => s.hasHydrated);
 
-	const products = useAdminProductsStore((state) => state.products) as ProductItem[];
-	const hasProductsHydrated = useAdminProductsStore((state) => state.hasHydrated);
+	const products = useAdminProductsStore((s) => s.products) as ProductItem[];
+	const hasProductsHydrated = useAdminProductsStore((s) => s.hasHydrated);
 
-	const categories = useAdminCategoriesStore((state) => state.categories) as CategoryItem[];
-	const themes = useAdminThemesStore((state) => state.themes) as ThemeItem[];
+	const categories = useAdminCategoriesStore((s) => s.categories) as CategoryItem[];
+	const themes = useAdminThemesStore((s) => s.themes) as ThemeItem[];
 
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
 	useEffect(() => {
 		setMounted(true);
-
 		const params = new URLSearchParams(window.location.search);
 		setPreview(params.get('preview') === 'true');
 	}, []);
 
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') {
-				setOpenMenu(false);
-			}
-		};
-
-		document.addEventListener('keydown', handleKeyDown);
-
-		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, []);
-
 	if (!mounted || !hasAuthHydrated || !hasProductsHydrated) return null;
 
-	const filteredProducts = products.filter((product) => {
-		if (selectedCategory && product.categoryId !== selectedCategory) return false;
-		if (selectedTheme && product.themeId !== selectedTheme) return false;
+	const filteredProducts = products.filter((p) => {
+		if (selectedCategory && p.categoryId !== selectedCategory) return false;
+		if (selectedTheme && p.themeId !== selectedTheme) return false;
 		return true;
 	});
 
@@ -380,199 +341,65 @@ const HomeClient = () => {
 	return (
 		<main style={main}>
 			<header style={navbar}>
-				<button
-					id="menu-btn"
-					type="button"
-					style={menuTrigger}
-					onClick={() => setOpenMenu(true)}
-				>
-					<span aria-hidden="true" style={{ fontSize: 20 }}>
-						☰
-					</span>
-					<span>Menu</span>
+				<button style={menuTrigger} onClick={() => setOpenMenu(true)}>
+					☰ Menu
 				</button>
 
 				<div style={navActions}>
-					{user ? (
-						<>
-							<Link href="/account" style={btnSapphire}>
-								Mon compte
-							</Link>
-
-							<button
-								type="button"
-								style={btnRuby}
-								onClick={() => {
-									logout();
-									clearCart();
-								}}
-							>
-								Déconnexion
-							</button>
-						</>
-					) : (
-						<>
-							<Link href="/login" style={btnSapphire}>
-								Connexion
-							</Link>
-
-							<Link href="/register" style={btnGold}>
-								Inscription
-							</Link>
-						</>
-					)}
+					<Link href="/login" style={btnSapphire}>Connexion</Link>
 				</div>
 			</header>
 
 			<div style={overlay(openMenu)} onClick={() => setOpenMenu(false)} />
 
-			<aside style={drawer(openMenu)} aria-hidden={!openMenu}>
+			<aside style={drawer(openMenu)}>
 				<div style={drawerInner}>
 					<div style={drawerHeader}>
 						<div style={drawerTitle}>Navigation</div>
-
-						<button
-							type="button"
-							style={closeButton}
-							onClick={() => setOpenMenu(false)}
-							aria-label="Fermer le menu"
-						>
-							✕
-						</button>
-					</div>
-
-					<div style={drawerLinks}>
-						<Link href="/" style={drawerLink} onClick={() => setOpenMenu(false)}>
-							<span aria-hidden="true">🏠</span>
-							<span>Accueil</span>
-						</Link>
-
-						<Link href="/cart" style={drawerLink} onClick={() => setOpenMenu(false)}>
-							<span aria-hidden="true">🛒</span>
-							<span>Panier</span>
-						</Link>
-
-						<Link href="/contact" style={drawerLink} onClick={() => setOpenMenu(false)}>
-							<span aria-hidden="true">✉️</span>
-							<span>Contact</span>
-						</Link>
-					</div>
-
-					<div style={drawerSection}>
-						<div style={drawerTitle}>Filtres</div>
-						<p style={drawerHint}>
-							Affûte la vitrine, choisis une catégorie ou un thème pour ne garder que les
-							pépites.
-						</p>
-
-						<div style={{ marginBottom: 22 }}>
-							<h3 style={sectionTitle}>Catégories</h3>
-
-							<div style={filterList}>
-								<button
-									type="button"
-									style={{
-										...filterChipBase,
-										...(selectedCategory === null ? filterChipActive : null),
-									}}
-									onClick={() => setSelectedCategory(null)}
-								>
-									Toutes
-								</button>
-
-								{categories.map((category) => (
-									<button
-										key={category.id}
-										type="button"
-										style={{
-											...filterChipBase,
-											...(selectedCategory === category.id ? filterChipActive : null),
-										}}
-										onClick={() => setSelectedCategory(category.id)}
-									>
-										{category.name}
-									</button>
-								))}
-							</div>
-						</div>
-
-						<div>
-							<h3 style={sectionTitle}>Thèmes</h3>
-
-							<div style={filterList}>
-								<button
-									type="button"
-									style={{
-										...filterChipBase,
-										...(selectedTheme === null ? filterChipActive : null),
-									}}
-									onClick={() => setSelectedTheme(null)}
-								>
-									Tous
-								</button>
-
-								{themes.map((theme) => (
-									<button
-										key={theme.id}
-										type="button"
-										style={{
-											...filterChipBase,
-											...(selectedTheme === theme.id ? filterChipActive : null),
-										}}
-										onClick={() => setSelectedTheme(theme.id)}
-									>
-										{theme.name}
-									</button>
-								))}
-							</div>
-						</div>
+						<button style={closeButton} onClick={() => setOpenMenu(false)}>✕</button>
 					</div>
 				</div>
 			</aside>
 
 			<section style={hero}>
-				<img
-					src="/logo-transparent.png"
-					alt="LYJ Atelier Bijoux"
-					style={heroLogo}
-				/>
-				<p style={{ opacity: 0.7, textAlign: 'center', margin: 0 }}>
-					Des créations uniques inspirées par l’élégance et le raffinement.
-				</p>
+				<img src="/logo-transparent.png" style={heroLogo} />
 			</section>
 
 			<div style={titleBlock}>
-				<p style={{ opacity: 0.6, margin: '0 0 6px 0' }}>Boutique</p>
-				<h2 style={{ margin: 0 }}>Nos créations</h2>
+				<h2>Nos créations</h2>
 			</div>
 
+			{/* ✅ PRODUITS CLIQUABLES */}
 			<section style={grid}>
 				{filteredProducts.map((product) => (
-					<div key={product.id} style={card}>
-						<img
-							src={product.image || '/placeholder.png'}
-							alt={product.name}
-							style={image}
-						/>
+					<Link
+						key={product.id}
+						href={`/product/${product.id}`}
+						style={{ textDecoration: 'none', color: 'inherit' }}
+					>
+						<div style={card}>
+							<img src={product.image || '/placeholder.png'} style={image} />
 
-						<h3 style={productTitle}>{product.name}</h3>
-						<p style={productPrice}>{product.price} €</p>
+							<h3 style={productTitle}>{product.name}</h3>
+							<p style={productPrice}>{product.price} €</p>
 
-						<button
-							type="button"
-							style={btnGold}
-							onClick={() =>
-								addToCart({
-									id: product.id,
-									title: product.name,
-									price: product.price,
-									quantity: 1,
-								})
-							}
-						>
-							Ajouter au panier
-						</button>
-					</div>
+							<button
+								style={btnGold}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									addToCart({
+										id: product.id,
+										title: product.name,
+										price: product.price,
+										quantity: 1,
+									});
+								}}
+							>
+								Ajouter au panier
+							</button>
+						</div>
+					</Link>
 				))}
 			</section>
 		</main>
