@@ -7,6 +7,13 @@ export interface AuthUser {
 	id: string;
 	firstName: string;
 	email: string;
+
+	// ✅ AJOUT ADDRESS
+	address?: {
+		street?: string;
+		city?: string;
+		zip?: string;
+	};
 }
 
 interface AuthState {
@@ -16,6 +23,9 @@ interface AuthState {
 	setUser: (user: AuthUser | null) => void;
 	logout: () => void;
 	setHasHydrated: (state: boolean) => void;
+
+	// ✅ AJOUT UPDATE
+	updateUser: (data: Partial<AuthUser>) => void;
 }
 
 const useAuthStore = create<AuthState>()(
@@ -25,9 +35,25 @@ const useAuthStore = create<AuthState>()(
 			hasHydrated: false,
 
 			setUser: (user) => set({ user }),
+
 			logout: () => set({ user: null }),
 
 			setHasHydrated: (state) => set({ hasHydrated: state }),
+
+			// ✅ UPDATE USER
+			updateUser: (data) =>
+				set((state) => ({
+					user: state.user
+						? {
+								...state.user,
+								...data,
+								address: {
+									...state.user.address,
+									...data.address,
+								},
+						  }
+						: null,
+				})),
 		}),
 		{
 			name: 'auth-storage',
