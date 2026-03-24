@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.11.0",
+    "@types/leaflet": "^1.9.21",
     "bcryptjs": "^3.0.3",
     "next": "16.1.7",
     "react": "19.2.3",

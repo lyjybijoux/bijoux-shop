@@ -11,13 +11,11 @@ export default function RootLayout({
 			<body
 				style={{
 					margin: 0,
-					background: '#020617', // 🔥 même couleur que ton site
+					background: '#020617',
 					color: 'white',
 				}}
 			>
 				<ClientProviders />
-
-				{/* ❌ PAS de padding ici */}
 				{children}
 			</body>
 		</html>

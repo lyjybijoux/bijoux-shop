@@ -1,361 +1,299 @@
 'use client';
 
-import {
-	useEffect,
-	useState,
-	type ChangeEvent,
-	type CSSProperties,
-} from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 import useAuthStore from '@/store/auth';
 
 type Suggestion = {
 	label: string;
 	city: string;
-	postcode: string;
-	name: string;
+	postalCode: string;
 };
 
-type FormState = {
-	firstName: string;
-	email: string;
-	street: string;
-	city: string;
-	zip: string;
-};
-
-const AccountEditPage = () => {
+const EditAccountPage = () => {
 	const router = useRouter();
 
 	const user = useAuthStore((state) => state.user);
-	const hasHydrated = useAuthStore((state) => state.hasHydrated);
 	const updateUser = useAuthStore((state) => state.updateUser);
 
-	const [form, setForm] = useState<FormState>({
-		firstName: '',
-		email: '',
-		street: '',
-		city: '',
-		zip: '',
+	const [form, setForm] = useState({
+		firstName: user?.firstName || '',
+		lastName: user?.lastName || '',
+		email: user?.email || '',
+
+		phoneMobile: user?.phoneMobile || '',
+		phoneFix: user?.phoneFix || '',
+
+		address: user?.address?.street || '',
+		postalCode: user?.address?.postalCode || '',
+		city: user?.address?.city || '',
 	});
 
 	const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-	const [showSuggestions, setShowSuggestions] = useState(false);
-	const [loadingGeo, setLoadingGeo] = useState(false);
 
 	////////////////////////////////////////////////////////
-	// INIT
-	////////////////////////////////////////////////////////
 
-	useEffect(() => {
-		if (!hasHydrated) return;
+	const handleAddressChange = async (value: string) => {
+		setForm((prev) => ({ ...prev, address: value }));
 
-		if (!user) {
-			router.replace('/login');
+		if (value.length < 3) {
+			setSuggestions([]);
 			return;
 		}
 
-		setForm({
-			firstName: user.firstName || '',
-			email: user.email || '',
-			street: user.address?.street || '',
-			city: user.address?.city || '',
-			zip: user.address?.zip || '',
-		});
-	}, [user, hasHydrated, router]);
+		try {
+			const res = await fetch(
+				`https://api-adresse.data.gouv.fr/search/?q=${value}&limit=5`
+			);
 
-	////////////////////////////////////////////////////////
-	// INPUT
-	////////////////////////////////////////////////////////
+			const data = await res.json();
 
-	const handleChange =
-		(field: keyof FormState) =>
-		(e: ChangeEvent<HTMLInputElement>) => {
-			const value = e.target.value;
+			if (!data?.features) return;
 
-			setForm((prev) => ({
-				...prev,
-				[field]: value,
+			const results = data.features.map((f: any) => ({
+				label: f.properties.label,
+				city: f.properties.city,
+				postalCode: f.properties.postcode,
 			}));
 
-			if (field === 'street' && value.length > 3) {
-				fetchAddress(value);
-			}
-		};
-
-	////////////////////////////////////////////////////////
-	// API ADRESSE
-	////////////////////////////////////////////////////////
-
-	const fetchAddress = async (query: string) => {
-		const res = await fetch(
-			`https://api-adresse.data.gouv.fr/search/?q=${query}&limit=5`
-		);
-
-		const data = await res.json();
-
-		const results: Suggestion[] = data.features.map((item: any) => ({
-			label: item.properties.label,
-			city: item.properties.city,
-			postcode: item.properties.postcode,
-			name: item.properties.name,
-		}));
-
-		setSuggestions(results);
-		setShowSuggestions(true);
+			setSuggestions(results);
+		} catch {
+			setSuggestions([]);
+		}
 	};
-
-	////////////////////////////////////////////////////////
-	// GEO
-	////////////////////////////////////////////////////////
-
-	const useMyLocation = () => {
-		if (!navigator.geolocation) return;
-
-		setLoadingGeo(true);
-
-		navigator.geolocation.getCurrentPosition(
-			async (pos) => {
-				const { latitude, longitude } = pos.coords;
-
-				const res = await fetch(
-					`https://api-adresse.data.gouv.fr/reverse/?lat=${latitude}&lon=${longitude}`
-				);
-
-				const data = await res.json();
-				const addr = data.features[0]?.properties;
-
-				if (!addr) return;
-
-				setForm((prev) => ({
-					...prev,
-					street: addr.name,
-					city: addr.city,
-					zip: addr.postcode,
-				}));
-
-				setLoadingGeo(false);
-			},
-			() => {
-				setLoadingGeo(false);
-				alert('Permission refusée');
-			}
-		);
-	};
-
-	////////////////////////////////////////////////////////
-	// SELECT
-	////////////////////////////////////////////////////////
 
 	const selectSuggestion = (s: Suggestion) => {
 		setForm((prev) => ({
 			...prev,
-			street: s.name,
+			address: s.label,
 			city: s.city,
-			zip: s.postcode,
+			postalCode: s.postalCode,
 		}));
 
-		setShowSuggestions(false);
+		setSuggestions([]);
 	};
 
 	////////////////////////////////////////////////////////
-	// SUBMIT
-	////////////////////////////////////////////////////////
 
-	const handleSubmit = () => {
+	const handleSave = () => {
+		if (!user) return;
+
 		updateUser({
+			...user,
 			firstName: form.firstName,
+			lastName: form.lastName,
 			email: form.email,
+			phoneMobile: form.phoneMobile,
+			phoneFix: form.phoneFix,
 			address: {
-				street: form.street,
+				street: form.address,
+				postalCode: form.postalCode,
 				city: form.city,
-				zip: form.zip,
 			},
 		});
-
-		alert('Profil mis à jour ✨');
 
 		router.push('/account');
 	};
 
-	if (!hasHydrated || !user) return null;
-
 	return (
 		<main style={container}>
-			<div style={wrapper}>
-				<div style={header}>
-					<h1 style={title}>Modifier mes informations</h1>
-					<p style={subtitle}>Adresse intelligente 🚀</p>
+			<div style={card}>
+				<h1 style={title}>Modifier mes informations</h1>
+
+				<div style={grid}>
+					<input
+						style={input}
+						value={form.firstName}
+						onChange={(e) =>
+							setForm((p) => ({ ...p, firstName: e.target.value }))
+						}
+						placeholder="Prénom"
+					/>
+
+					<input
+						style={input}
+						value={form.lastName}
+						onChange={(e) =>
+							setForm((p) => ({ ...p, lastName: e.target.value }))
+						}
+						placeholder="Nom"
+					/>
+
+					<input
+						style={input}
+						value={form.email}
+						onChange={(e) =>
+							setForm((p) => ({ ...p, email: e.target.value }))
+						}
+						placeholder="Email"
+					/>
+
+					{/* 📱 MOBILE */}
+					<input
+						style={input}
+						value={form.phoneMobile}
+						onChange={(e) =>
+							setForm((p) => ({
+								...p,
+								phoneMobile: e.target.value,
+							}))
+						}
+						placeholder="+33 6 12 34 56 78"
+					/>
+
+					{/* ☎️ FIX */}
+					<input
+						style={input}
+						value={form.phoneFix}
+						onChange={(e) =>
+							setForm((p) => ({
+								...p,
+								phoneFix: e.target.value,
+							}))
+						}
+						placeholder="+33 2 40 00 00 00"
+					/>
+
+					{/* 🔥 ADRESSE */}
+					<div style={{ position: 'relative' }}>
+						<input
+							style={input}
+							value={form.address}
+							onChange={(e) =>
+								handleAddressChange(e.target.value)
+							}
+							placeholder="Adresse"
+						/>
+
+						{suggestions.length > 0 && (
+							<div style={suggestBox}>
+								{suggestions.map((s, i) => (
+									<div
+										key={i}
+										style={suggestItem}
+										onClick={() => selectSuggestion(s)}
+									>
+										{s.label}
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+
+					<input
+						style={input}
+						value={form.postalCode}
+						onChange={(e) =>
+							setForm((p) => ({
+								...p,
+								postalCode: e.target.value,
+							}))
+						}
+						placeholder="Code postal"
+					/>
+
+					<input
+						style={input}
+						value={form.city}
+						onChange={(e) =>
+							setForm((p) => ({ ...p, city: e.target.value }))
+						}
+						placeholder="Ville"
+					/>
 				</div>
 
-				<div style={card}>
-					<div style={formGrid}>
-						<Input label="Prénom" value={form.firstName} onChange={handleChange('firstName')} />
-						<Input label="Email" value={form.email} onChange={handleChange('email')} />
+				<div style={actions}>
+					<button onClick={() => router.push('/account')} style={btnGhost}>
+						Annuler
+					</button>
 
-						<button style={geoBtn} onClick={useMyLocation}>
-							{loadingGeo ? 'Localisation...' : '📍 Utiliser ma position'}
-						</button>
-
-						<div style={{ position: 'relative' }}>
-							<Input label="Adresse" value={form.street} onChange={handleChange('street')} />
-
-							{showSuggestions && (
-								<div style={suggestionsBox}>
-									{suggestions.map((s, i) => (
-										<div
-											key={i}
-											style={suggestionItem}
-											onClick={() => selectSuggestion(s)}
-										>
-											{s.label}
-										</div>
-									))}
-								</div>
-							)}
-						</div>
-
-						<Input label="Code postal" value={form.zip} onChange={handleChange('zip')} />
-						<Input label="Ville" value={form.city} onChange={handleChange('city')} />
-					</div>
-
-					<div style={actions}>
-						<button style={btnGhost} onClick={() => router.back()}>
-							Annuler
-						</button>
-
-						<button style={btnGold} onClick={handleSubmit}>
-							Enregistrer
-						</button>
-					</div>
+					<button onClick={handleSave} style={btnGold}>
+						Enregistrer
+					</button>
 				</div>
 			</div>
 		</main>
 	);
 };
 
-export default AccountEditPage;
+export default EditAccountPage;
 
 ////////////////////////////////////////////////////////
-// INPUT (SANS ANY)
+// 🎨 STYLE
 ////////////////////////////////////////////////////////
 
-type InputProps = {
-	label: string;
-	value: string;
-	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-};
-
-const Input = ({ label, value, onChange }: InputProps) => (
-	<div style={inputWrapper}>
-		<label style={inputLabel}>{label}</label>
-		<input style={input} value={value} onChange={onChange} />
-	</div>
-);
-
-////////////////////////////////////////////////////////
-// STYLES (FIX TS)
-////////////////////////////////////////////////////////
-
-const container: CSSProperties = {
+const container = {
 	minHeight: '100vh',
 	display: 'flex',
 	justifyContent: 'center',
-	paddingTop: 80,
-	color: 'white',
+	alignItems: 'center',
+	background: '#020617',
+	padding: 20,
 };
 
-const wrapper: CSSProperties = {
+const card = {
 	width: '100%',
-	maxWidth: 720,
-};
-
-const header: CSSProperties = {
-	marginBottom: 30,
-};
-
-const title: CSSProperties = {
-	fontSize: 30,
-	fontWeight: 700,
-};
-
-const subtitle: CSSProperties = {
-	opacity: 0.6,
-};
-
-const card: CSSProperties = {
-	background: 'linear-gradient(180deg,#1e293b,#020617)',
+	maxWidth: 520,
+	padding: 30,
 	borderRadius: 20,
-	padding: 24,
-};
-
-const formGrid: CSSProperties = {
-	display: 'grid',
-	gap: 16,
-};
-
-const inputWrapper: CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	gap: 6,
-};
-
-const inputLabel: CSSProperties = {
-	fontSize: 13,
-	opacity: 0.6,
-};
-
-const input: CSSProperties = {
-	padding: '12px 14px',
-	borderRadius: 12,
 	background: '#0f172a',
-	color: 'white',
 	border: '1px solid rgba(255,255,255,0.1)',
 };
 
-const geoBtn: CSSProperties = {
-	padding: 10,
-	borderRadius: 12,
-	background: '#2563eb',
-	color: 'white',
-	border: 'none',
-	cursor: 'pointer',
+const title = {
+	fontSize: 26,
+	marginBottom: 20,
 };
 
-const suggestionsBox: CSSProperties = {
-	position: 'absolute',
-	top: '100%',
+const grid = {
+	display: 'flex',
+	flexDirection: 'column' as const,
+	gap: 12,
+};
+
+const input = {
+	height: 48,
+	padding: '0 14px',
+	borderRadius: 12,
+	border: '1px solid rgba(255,255,255,0.1)',
+	background: '#020617',
+	color: 'white',
+};
+
+const suggestBox = {
+	position: 'absolute' as const,
+	top: 50,
 	left: 0,
 	right: 0,
 	background: '#0f172a',
-	borderRadius: 12,
-	zIndex: 50,
+	borderRadius: 10,
+	border: '1px solid rgba(255,255,255,0.1)',
 };
 
-const suggestionItem: CSSProperties = {
+const suggestItem = {
 	padding: 10,
 	cursor: 'pointer',
 };
 
-const actions: CSSProperties = {
+const actions = {
 	display: 'flex',
 	justifyContent: 'space-between',
 	marginTop: 20,
 };
 
-const btnGhost: CSSProperties = {
-	padding: 10,
-	borderRadius: 12,
-	border: '1px solid white',
+const btnGhost = {
+	padding: '10px 16px',
+	borderRadius: 10,
+	border: '1px solid rgba(255,255,255,0.2)',
 	background: 'transparent',
 	color: 'white',
 };
 
-const btnGold: CSSProperties = {
-	padding: 10,
-	borderRadius: 12,
+const btnGold = {
+	padding: '10px 16px',
+	borderRadius: 10,
+	border: 'none',
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
 	color: '#111',
-	border: 'none',
+	fontWeight: 600,
 };

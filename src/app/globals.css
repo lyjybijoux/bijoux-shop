@@ -14,6 +14,8 @@
 
 * {
 	box-sizing: border-box;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(212, 175, 55, 0.5) transparent;
 }
 
 html {
@@ -39,331 +41,139 @@ button {
 	cursor: pointer;
 }
 
-.site {
-	min-height: 100vh;
-}
-
-.hero {
-	position: relative;
-	padding: 64px 24px 40px;
-	overflow: hidden;
-	border-bottom: 1px solid rgba(201, 161, 93, 0.15);
-	background:
-		radial-gradient(circle at center, rgba(255, 255, 255, 0.04), transparent 45%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-}
-
-.hero__overlay {
-	position: absolute;
-	inset: 0;
-	background:
-		radial-gradient(circle at 20% 20%, rgba(36, 90, 156, 0.15), transparent 25%),
-		radial-gradient(circle at 80% 30%, rgba(201, 161, 93, 0.1), transparent 20%);
-	pointer-events: none;
-}
-
-.hero__content {
-	position: relative;
-	z-index: 1;
-	max-width: 1100px;
-	margin: 0 auto;
-	text-align: center;
-}
-
-.hero__logo {
-  width: min(100%, 420px);
-  margin: 0 auto 16px;
-  filter:
-    drop-shadow(0 20px 50px rgba(0, 0, 0, 0.6))
-    brightness(1.1);
-}
-
-.hero__eyebrow {
-	margin: 0 0 12px;
-	color: var(--gold-strong);
-	font-size: 14px;
-	font-weight: 700;
-	letter-spacing: 0.24em;
-	text-transform: uppercase;
-}
-
-.hero__title {
-	margin: 0;
-	font-size: clamp(34px, 6vw, 64px);
-	line-height: 1.05;
-}
-
-.hero__text {
-	max-width: 700px;
-	margin: 20px auto 0;
-	color: var(--muted);
-	font-size: 18px;
-	line-height: 1.7;
-}
-
-.hero__actions {
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
-	gap: 14px;
-	margin-top: 28px;
-}
-
-.button {
-	min-width: 180px;
-	padding: 14px 22px;
-	border-radius: 999px;
-	border: 1px solid transparent;
-	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease,
-		border-color 0.2s ease,
-		background-color 0.2s ease;
-}
-
-.button:hover {
-	transform: translateY(-2px);
-}
-
-.button--gold {
-	background: linear-gradient(135deg, var(--gold) 0%, var(--gold-strong) 100%);
-	color: #1e160c;
-	box-shadow: 0 12px 30px rgba(201, 161, 93, 0.28);
-	font-weight: 700;
-}
-
-.button--ghost {
-	background: rgba(255, 255, 255, 0.04);
-	border-color: rgba(255, 255, 255, 0.12);
-	color: var(--text);
-	backdrop-filter: blur(6px);
-}
-
-.products {
-	max-width: 1100px;
-	margin: 0 auto;
-	padding: 56px 24px 80px;
-}
-
-.section-heading {
-	margin-bottom: 28px;
-	text-align: center;
-}
-
-.section-heading__label {
-	margin: 0 0 8px;
-	color: var(--gold-strong);
-	font-size: 13px;
-	font-weight: 700;
-	letter-spacing: 0.22em;
-	text-transform: uppercase;
-}
-
-.section-heading__title {
-	margin: 0;
-	font-size: clamp(28px, 4vw, 42px);
-}
-
-.products__grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 24px;
-}
-
-.product-card {
-	overflow: hidden;
-	border: 1px solid var(--card-border);
-	border-radius: 24px;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
-	box-shadow: var(--shadow);
-	backdrop-filter: blur(10px);
-}
-
-.product-card__image-wrapper {
-	aspect-ratio: 1 / 1;
-	background:
-		radial-gradient(circle at top, rgba(36, 90, 156, 0.18), transparent 40%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-	padding: 18px;
-}
-
-.product-card__image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	border-radius: 18px;
-	background: #111927;
-}
-
-.product-card__content {
-	padding: 20px;
-}
-
-.product-card__title {
-	margin: 0;
-	font-size: 22px;
-}
-
-.product-card__price {
-	margin: 10px 0 18px;
-	color: var(--gold-strong);
-	font-size: 20px;
-	font-weight: 700;
-}
-
-.product-card__button {
-	width: 100%;
-}
-
-@media (max-width: 768px) {
-	.hero {
-		padding-top: 40px;
-	}
-
-	.hero__text {
-		font-size: 16px;
-	}
-
-	.products__grid {
-		grid-template-columns: 1fr;
-	}
-}
-
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 16px 24px;
-
-  background: rgba(9, 17, 27, 0.7);
-  backdrop-filter: blur(10px);
-
-  border-bottom: 1px solid rgba(201, 161, 93, 0.2);
-}
-
-.navbar__logo {
-  height: 70px;
-  width: auto;
-
-  filter:
-    drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 15px rgba(201, 161, 93, 0.3));
-}
-
-.navbar__links {
-  display: flex;
-  gap: 20px;
-}
-
-.navbar__links a {
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.navbar__links a:hover {
-  color: var(--gold-strong);
-}
-
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translate(-50%, 20px);
-	}
-	to {
-		opacity: 1;
-		transform: translate(-50%, 0);
-	}
-}
-
-/* ===== FILTER MENU ===== */
-
-.filters__list button {
-	display: block;
-	width: 100%;
-	text-align: left;
-	padding: 10px 14px;
-	border-radius: 10px;
-	background: transparent;
-	border: none;
-	color: white;
-	cursor: pointer;
-	transition: 0.2s;
-}
-
-.filters__list button:hover {
-	background: rgba(255,255,255,0.08);
-}
-
-.filters__list button.active {
-	background: linear-gradient(to right, rgba(255,215,0,0.2), rgba(255,215,0,0.05));
-	color: gold;
-	font-weight: 600;
-}
-.hero {
-	display: flex;
-	align-items: flex-start; /* 🔥 au lieu de center */
-	justify-content: center;
-	padding-top: 40px; /* 🔥 espace en haut */
-	min-height: 300px;
-}
-
-.gold-button {
-	background: linear-gradient(135deg, #f7e7a1 0%, #d4af37 45%, #b8962e 100%);
-	color: #111;
-	box-shadow:
-		inset 0 1px 1px rgba(255, 255, 255, 0.55),
-		0 4px 10px rgba(0, 0, 0, 0.28);
-	transition:
-		transform 0.15s ease,
-		filter 0.2s ease,
-		box-shadow 0.2s ease;
-}
-
-.gold-button:hover {
-	filter: brightness(1.08);
-}
-
-.gold-button:active {
-	transform: scale(0.98);
-}
-
 a {
 	text-decoration: none;
 	color: inherit;
 }
 
-/* 🔥 Scrollbar moderne */
-*::-webkit-scrollbar {
-	width: 6px;
+/* =======================================================
+   ACCOUNT EDIT FIX (🔥 IMPORTANT)
+======================================================= */
+
+.account-edit {
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center; /* 🔥 FIX CENTRAGE */
+	padding: 40px 20px;
 }
 
-*::-webkit-scrollbar-track {
+.account-edit__wrapper {
+	width: 100%;
+	max-width: 600px;
+}
+
+.account-edit__card {
+	border-radius: 20px;
+	padding: 30px;
+	background: linear-gradient(180deg, #0f172a, #020617);
+	border: 1px solid rgba(255,255,255,0.08);
+	box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.account-edit__header {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.account-edit__title {
+	font-size: 28px;
+	margin: 0;
+}
+
+.account-edit__subtitle {
+	color: var(--muted);
+	margin-top: 6px;
+}
+
+.account-edit__grid {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.account-edit__input {
+	height: 48px;
+	padding: 0 14px;
+	border-radius: 12px;
+	border: 1px solid rgba(255,255,255,0.1);
+	background: #020617;
+	color: white;
+	outline: none;
+}
+
+.account-edit__input::placeholder {
+	color: rgba(255,255,255,0.4);
+}
+
+.account-edit__input:focus {
+	border-color: var(--gold);
+	box-shadow: 0 0 0 2px rgba(201,161,93,0.2);
+}
+
+/* Suggestions adresse */
+
+.account-edit__suggestions {
+	position: absolute;
+	top: 50px;
+	left: 0;
+	right: 0;
+	background: #0f172a;
+	border-radius: 10px;
+	border: 1px solid rgba(255,255,255,0.1);
+	z-index: 10;
+}
+
+.account-edit__suggestion {
+	padding: 10px;
+	cursor: pointer;
+	border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.account-edit__suggestion:hover {
+	background: rgba(201,161,93,0.15);
+}
+
+/* Boutons */
+
+.account-edit__actions {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
+}
+
+.account-edit__button {
+	padding: 10px 16px;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+}
+
+.account-edit__button--ghost {
 	background: transparent;
+	border: 1px solid rgba(255,255,255,0.2);
+	color: white;
+}
+
+.account-edit__button--gold {
+	background: linear-gradient(135deg,#f7e7a1,#d4af37);
+	color: #111;
+	font-weight: 600;
+}
+
+/* =======================================================
+   SCROLLBAR
+======================================================= */
+
+*::-webkit-scrollbar {
+	width: 6px;
 }
 
 *::-webkit-scrollbar-thumb {
 	background: linear-gradient(
 		180deg,
-		rgba(212, 175, 55, 0.6),
-		rgba(212, 175, 55, 0.3)
+		rgba(212,175,55,0.6),
+		rgba(212,175,55,0.3)
 	);
 	border-radius: 10px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-	background: linear-gradient(
-		180deg,
-		rgba(212, 175, 55, 0.9),
-		rgba(212, 175, 55, 0.5)
-	);
-}
-* {
-	scrollbar-width: thin;
-	scrollbar-color: rgba(212,175,55,0.5) transparent;
 }

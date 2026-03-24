@@ -3,17 +3,22 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export interface Address {
+	street?: string;
+	postalCode?: string;
+	city?: string;
+}
+
 export interface AuthUser {
 	id: string;
 	firstName: string;
+	lastName?: string;
 	email: string;
 
-	// ✅ AJOUT ADDRESS
-	address?: {
-		street?: string;
-		city?: string;
-		zip?: string;
-	};
+	phoneMobile?: string;
+	phoneFix?: string;
+
+	address?: Address;
 }
 
 interface AuthState {
@@ -21,11 +26,9 @@ interface AuthState {
 	hasHydrated: boolean;
 
 	setUser: (user: AuthUser | null) => void;
+	updateUser: (user: AuthUser) => void;
 	logout: () => void;
 	setHasHydrated: (state: boolean) => void;
-
-	// ✅ AJOUT UPDATE
-	updateUser: (data: Partial<AuthUser>) => void;
 }
 
 const useAuthStore = create<AuthState>()(
@@ -36,24 +39,11 @@ const useAuthStore = create<AuthState>()(
 
 			setUser: (user) => set({ user }),
 
+			updateUser: (user) => set({ user }),
+
 			logout: () => set({ user: null }),
 
 			setHasHydrated: (state) => set({ hasHydrated: state }),
-
-			// ✅ UPDATE USER
-			updateUser: (data) =>
-				set((state) => ({
-					user: state.user
-						? {
-								...state.user,
-								...data,
-								address: {
-									...state.user.address,
-									...data.address,
-								},
-						  }
-						: null,
-				})),
 		}),
 		{
 			name: 'auth-storage',
