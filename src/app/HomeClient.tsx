@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import Link from 'next/link';
 
 import useCartStore from '../store/cart';
@@ -18,6 +18,7 @@ type ProductItem = {
 	image?: string;
 	categoryId?: string | null;
 	themeId?: string | null;
+	description?: string;
 };
 
 type CategoryItem = {
@@ -88,7 +89,8 @@ const filterChipBase: CSSProperties = {
 };
 
 const filterChipActive: CSSProperties = {
-	background: 'linear-gradient(90deg, rgba(250,204,21,0.95) 0%, rgba(212,175,55,0.72) 58%, rgba(212,175,55,0.06) 100%)',
+	background:
+		'linear-gradient(90deg, rgba(250,204,21,0.95) 0%, rgba(212,175,55,0.72) 58%, rgba(212,175,55,0.06) 100%)',
 	color: '#fff4bf',
 	border: '1px solid rgba(250,204,21,0.22)',
 	boxShadow: '0 10px 24px rgba(212,175,55,0.18)',
@@ -293,6 +295,18 @@ const card: CSSProperties = {
 	boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
 };
 
+const productLink: CSSProperties = {
+	display: 'block',
+	color: 'inherit',
+	textDecoration: 'none',
+};
+
+const clickableCard: CSSProperties = {
+	...card,
+	cursor: 'pointer',
+	transition: 'transform 180ms ease, box-shadow 180ms ease',
+};
+
 const image: CSSProperties = {
 	width: '100%',
 	height: 160,
@@ -376,6 +390,18 @@ const HomeClient = () => {
 	});
 
 	if (MAINTENANCE && !preview) return <ComingSoon />;
+
+	const handleAddToCart = (event: MouseEvent<HTMLButtonElement>, product: ProductItem) => {
+		event.preventDefault();
+		event.stopPropagation();
+
+		addToCart({
+			id: product.id,
+			title: product.name,
+			price: product.price,
+			quantity: 1,
+		});
+	};
 
 	return (
 		<main style={main}>
@@ -473,7 +499,7 @@ const HomeClient = () => {
 									type="button"
 									style={{
 										...filterChipBase,
-										...(selectedCategory === null ? filterChipActive : null),
+										...(selectedCategory === null ? filterChipActive : {}),
 									}}
 									onClick={() => setSelectedCategory(null)}
 								>
@@ -486,7 +512,7 @@ const HomeClient = () => {
 										type="button"
 										style={{
 											...filterChipBase,
-											...(selectedCategory === category.id ? filterChipActive : null),
+											...(selectedCategory === category.id ? filterChipActive : {}),
 										}}
 										onClick={() => setSelectedCategory(category.id)}
 									>
@@ -504,7 +530,7 @@ const HomeClient = () => {
 									type="button"
 									style={{
 										...filterChipBase,
-										...(selectedTheme === null ? filterChipActive : null),
+										...(selectedTheme === null ? filterChipActive : {}),
 									}}
 									onClick={() => setSelectedTheme(null)}
 								>
@@ -517,7 +543,7 @@ const HomeClient = () => {
 										type="button"
 										style={{
 											...filterChipBase,
-											...(selectedTheme === theme.id ? filterChipActive : null),
+											...(selectedTheme === theme.id ? filterChipActive : {}),
 										}}
 										onClick={() => setSelectedTheme(theme.id)}
 									>
@@ -548,31 +574,40 @@ const HomeClient = () => {
 
 			<section style={grid}>
 				{filteredProducts.map((product) => (
-					<div key={product.id} style={card}>
-						<img
-							src={product.image || '/placeholder.png'}
-							alt={product.name}
-							style={image}
-						/>
-
-						<h3 style={productTitle}>{product.name}</h3>
-						<p style={productPrice}>{product.price} €</p>
-
-						<button
-							type="button"
-							style={btnGold}
-							onClick={() =>
-								addToCart({
-									id: product.id,
-									title: product.name,
-									price: product.price,
-									quantity: 1,
-								})
-							}
+					<Link
+						key={product.id}
+						href={`/product/${product.id}`}
+						style={productLink}
+					>
+						<div
+							style={clickableCard}
+							onMouseEnter={(event) => {
+								event.currentTarget.style.transform = 'translateY(-2px)';
+								event.currentTarget.style.boxShadow = '0 20px 44px rgba(0,0,0,0.34)';
+							}}
+							onMouseLeave={(event) => {
+								event.currentTarget.style.transform = 'translateY(0)';
+								event.currentTarget.style.boxShadow = card.boxShadow || '';
+							}}
 						>
-							Ajouter au panier
-						</button>
-					</div>
+							<img
+								src={product.image || '/placeholder.png'}
+								alt={product.name}
+								style={image}
+							/>
+
+							<h3 style={productTitle}>{product.name}</h3>
+							<p style={productPrice}>{product.price} €</p>
+
+							<button
+								type="button"
+								style={btnGold}
+								onClick={(event) => handleAddToCart(event, product)}
+							>
+								Ajouter au panier
+							</button>
+						</div>
+					</Link>
 				))}
 			</section>
 		</main>
