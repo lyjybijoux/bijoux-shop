@@ -13,7 +13,7 @@ import FiltersMenu from '@/components/FiltersMenu';
 const MAINTENANCE = true;
 
 ////////////////////////////////////////////////////////
-// 💎 BUTTON BASE
+// 💎 BASE BOUTON (ALIGNEMENT FIX)
 ////////////////////////////////////////////////////////
 
 const btnBase = {
@@ -22,30 +22,33 @@ const btnBase = {
 	justifyContent: 'center',
 	height: 36,
 	padding: '0 14px',
-	borderRadius: 12,
+	borderRadius: 10,
+	border: 'none',
 	fontWeight: 600,
 	cursor: 'pointer',
-	border: 'none',
-	transition: 'all 0.25s ease',
+	lineHeight: 1,
+	textDecoration: 'none',
 };
 
 const btnGold = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#f7e7a1,#d4af37)',
 	color: '#111',
-	boxShadow: '0 6px 25px rgba(212,175,55,0.7)',
+	boxShadow: '0 4px 15px rgba(212,175,55,0.5)',
 };
 
 const btnRuby = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#7f1d1d,#dc2626)',
 	color: 'white',
+	boxShadow: '0 4px 15px rgba(220,38,38,0.6)',
 };
 
 const btnSapphire = {
 	...btnBase,
 	background: 'linear-gradient(135deg,#1e3a8a,#2563eb)',
 	color: 'white',
+	boxShadow: '0 4px 15px rgba(37,99,235,0.6)',
 };
 
 ////////////////////////////////////////////////////////
@@ -56,6 +59,15 @@ const main = {
 	paddingTop: 80,
 	background: '#020617',
 	minHeight: '100vh',
+	color: 'white',
+};
+
+const center = {
+	height: '100vh',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	background: '#020617',
 	color: 'white',
 };
 
@@ -73,49 +85,42 @@ const navbar = {
 	zIndex: 1000,
 };
 
-const drawer = (open: boolean) => ({
+const menuButton = {
 	position: 'fixed' as const,
-	top: 0,
-	left: 0,
-	height: '100vh',
-	width: 300,
-	padding: 20,
-	transform: open ? 'translateX(0)' : 'translateX(-100%)',
-	transition: 'transform 0.35s cubic-bezier(0.8, -0.2, 0.2, 1)',
-	background: 'linear-gradient(145deg,#020617,#0f172a)',
-	boxShadow: '0 30px 80px rgba(0,0,0,0.9)',
-	zIndex: 2000,
-});
-
-const overlay = (open: boolean) => ({
-	position: 'fixed' as const,
-	top: 0,
-	left: 0,
-	width: '100%',
-	height: '100%',
-	background: 'rgba(0,0,0,0.6)',
-	backdropFilter: 'blur(4px)',
-	opacity: open ? 1 : 0,
-	pointerEvents: open ? 'auto' : 'none',
-	transition: 'opacity 0.3s ease',
-	zIndex: 1500,
-});
-
-const menuItem = {
-	padding: '12px 14px',
-	borderRadius: 14,
-	background: 'rgba(255,255,255,0.04)',
-	marginBottom: 10,
-	cursor: 'pointer',
-	transition: 'all 0.2s ease',
+	top: 90,
+	left: 20,
+	...btnGold,
 };
 
-const sectionTitle = {
-	color: '#facc15',
-	fontWeight: 700,
-	fontSize: 18,
-	marginTop: 20,
+const menuBox = {
+	position: 'fixed' as const,
+	top: 140,
+	left: 20,
+	width: 260,
+	padding: 16,
+	borderRadius: 16,
+	background: 'rgba(2,6,23,0.9)',
+	backdropFilter: 'blur(12px)',
+	border: '1px solid rgba(255,255,255,0.08)',
+	boxShadow: '0 10px 40px rgba(0,0,0,0.7)',
+};
+
+const hero = {
+	display: 'flex',
+	flexDirection: 'column' as const,
+	alignItems: 'center',
+	paddingTop: 60,
+	paddingBottom: 40,
+};
+
+const heroLogo = {
+	width: 220,
 	marginBottom: 10,
+};
+
+const titleBlock = {
+	textAlign: 'center' as const,
+	marginBottom: 20,
 };
 
 const grid = {
@@ -139,46 +144,75 @@ const image = {
 };
 
 ////////////////////////////////////////////////////////
+// 🚧 MAINTENANCE
+////////////////////////////////////////////////////////
 
 const ComingSoon = () => (
-	<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+	<div style={center}>
 		<h1>🚧 Site en maintenance</h1>
 	</div>
 );
 
 ////////////////////////////////////////////////////////
+// 🧠 COMPONENT
+////////////////////////////////////////////////////////
 
 const HomeClient = () => {
-	const [openMenu, setOpenMenu] = useState(false);
+	const [preview, setPreview] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	const [openMenu, setOpenMenu] = useState(false);
 
-	const addToCart = useCartStore((s) => s.addToCart);
-	const clearCart = useCartStore((s) => s.clearCart);
+	const addToCart = useCartStore((state) => state.addToCart);
+	const clearCart = useCartStore((state) => state.clearCart);
 
-	const user = useAuthStore((s) => s.user);
-	const logout = useAuthStore((s) => s.logout);
-	const hasAuthHydrated = useAuthStore((s) => s.hasHydrated);
+	const user = useAuthStore((state) => state.user);
+	const logout = useAuthStore((state) => state.logout);
+	const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
 
-	const products = useAdminProductsStore((s) => s.products);
-	const hasProductsHydrated = useAdminProductsStore((s) => s.hasHydrated);
+	const products = useAdminProductsStore((state) => state.products);
+	const hasProductsHydrated = useAdminProductsStore((state) => state.hasHydrated);
 
-	useAdminCategoriesStore((s) => s.categories);
-	useAdminThemesStore((s) => s.themes);
+	useAdminCategoriesStore((state) => state.categories);
+	useAdminThemesStore((state) => state.themes);
 
-	useEffect(() => setMounted(true), []);
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+	const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+
+	useEffect(() => {
+		setMounted(true);
+		const params = new URLSearchParams(window.location.search);
+		setPreview(params.get('preview') === 'true');
+	}, []);
+
+	useEffect(() => {
+		const handleClick = (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+
+			if (!target.closest('#menu') && !target.closest('#menu-btn')) {
+				setOpenMenu(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClick);
+		return () => document.removeEventListener('mousedown', handleClick);
+	}, []);
 
 	if (!mounted || !hasAuthHydrated || !hasProductsHydrated) return null;
-	if (MAINTENANCE) return <ComingSoon />;
+
+	const filteredProducts = products.filter((product: any) => {
+		if (selectedCategory && product.categoryId !== selectedCategory) return false;
+		if (selectedTheme && product.themeId !== selectedTheme) return false;
+		return true;
+	});
+
+	if (MAINTENANCE && !preview) return <ComingSoon />;
 
 	return (
 		<main style={main}>
-			{/* NAVBAR */}
 			<header style={navbar}>
-				<button style={btnGold} onClick={() => setOpenMenu(true)}>
-					☰ Menu
-				</button>
+				<img src="/logo-transparent.png" style={{ height: 40 }} />
 
-				<div style={{ display: 'flex', gap: 10 }}>
+				<div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
 					{user ? (
 						<>
 							<Link href="/account" style={btnSapphire}>
@@ -209,27 +243,39 @@ const HomeClient = () => {
 				</div>
 			</header>
 
-			{/* OVERLAY */}
-			<div style={overlay(openMenu)} onClick={() => setOpenMenu(false)} />
+			<button
+				id="menu-btn"
+				style={menuButton}
+				onClick={() => setOpenMenu(!openMenu)}
+			>
+				☰ Menu
+			</button>
 
-			{/* DRAWER MENU */}
-			<div style={drawer(openMenu)}>
-				<div style={menuItem}>🏠 Accueil</div>
-				<div style={menuItem}>🛒 Panier</div>
-				<div style={menuItem}>✉️ Contact</div>
+			{openMenu && (
+				<div id="menu" style={menuBox}>
+					<FiltersMenu
+						selectedCategory={selectedCategory}
+						setSelectedCategory={setSelectedCategory}
+						selectedTheme={selectedTheme}
+						setSelectedTheme={setSelectedTheme}
+					/>
+				</div>
+			)}
 
-				<hr style={{ opacity: 0.1, margin: '20px 0' }} />
+			<section style={hero}>
+				<img src="/logo-transparent.png" style={heroLogo} />
+				<p style={{ opacity: 0.7 }}>
+					Des créations uniques inspirées par l’élégance et le raffinement.
+				</p>
+			</section>
 
-				<div style={sectionTitle}>Catégories</div>
-				<div style={btnGold}>Toutes</div>
-
-				<div style={sectionTitle}>Thèmes</div>
-				<div style={btnGold}>Tous</div>
+			<div style={titleBlock}>
+				<p style={{ opacity: 0.6 }}>Boutique</p>
+				<h2>Nos créations</h2>
 			</div>
 
-			{/* PRODUITS */}
 			<section style={grid}>
-				{products.map((product: any) => (
+				{filteredProducts.map((product: any) => (
 					<div key={product.id} style={card}>
 						<img src={product.image} style={image} />
 
