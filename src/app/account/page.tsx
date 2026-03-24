@@ -174,15 +174,13 @@ const AccountPage = () => {
 					</p>
 
 					<div style={actionsColumn}>
-						<button
-							type="button"
-							style={btnOutline}
-							onClick={() => {
-								alert('Page de modification du profil à brancher ici.');
-							}}
-						>
-							Modifier mes informations
-						</button>
+				<button
+	type="button"
+	style={btnOutline}
+	onClick={() => router.push('/account/edit')}
+>
+	Modifier mes informations
+</button>
 
 						<button
 							type="button"
