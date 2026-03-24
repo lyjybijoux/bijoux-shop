@@ -30,21 +30,22 @@ const AccountPage = () => {
 		return <p style={{ padding: 40 }}>Redirection...</p>;
 	}
 
-	// 🔥 SAFE ACCESS (évite erreurs TS)
-	const address = (user as any).address;
+	const address = (user as { address?: { street?: string; city?: string; zip?: string } }).address;
 
 	const totalOrders = orders.length;
 	const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
 	const totalItems = orders.reduce((sum, order) => sum + order.items.length, 0);
 
+	const postalAddress = address
+		? [address.street, address.zip, address.city].filter(Boolean).join(', ')
+		: 'Non renseignée';
+
 	return (
 		<main style={container}>
-			{/* HEADER */}
 			<div style={header}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-					{/* Avatar */}
+				<div style={headerLeft}>
 					<div style={avatar}>
-						{user.firstName?.[0]?.toUpperCase()}
+						{user.firstName?.[0]?.toUpperCase() || 'U'}
 					</div>
 
 					<div>
@@ -68,7 +69,6 @@ const AccountPage = () => {
 				</button>
 			</div>
 
-			{/* STATS */}
 			<div style={statsGrid}>
 				<div style={statCard}>
 					<p style={statLabel}>Commandes</p>
@@ -86,9 +86,7 @@ const AccountPage = () => {
 				</div>
 			</div>
 
-			{/* GRID */}
 			<div style={grid}>
-				{/* INFOS */}
 				<div style={card}>
 					<h2 style={cardTitle}>👤 Informations</h2>
 
@@ -103,12 +101,8 @@ const AccountPage = () => {
 					</div>
 
 					<div style={info}>
-						<span style={label}>Adresse</span>
-						<span>
-							{address
-								? `${address.street}, ${address.city}`
-								: 'Non renseignée'}
-						</span>
+						<span style={label}>Adresse postale</span>
+						<span style={infoValueMultiline}>{postalAddress}</span>
 					</div>
 
 					<div style={info}>
@@ -117,33 +111,36 @@ const AccountPage = () => {
 					</div>
 
 					<div style={info}>
-						<span style={label}>Commandes</span>
+						<span style={label}>Nombre de commandes</span>
 						<span>{totalOrders}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Articles commandés</span>
+						<span>{totalItems}</span>
+					</div>
+
+					<div style={info}>
+						<span style={label}>Montant total</span>
+						<span>{totalSpent.toFixed(2)} €</span>
 					</div>
 				</div>
 
-				{/* COMMANDES */}
 				<div style={card}>
 					<h2 style={cardTitle}>🧾 Mes commandes</h2>
 
 					<div style={ordersList}>
 						{orders.length === 0 ? (
-							<p style={emptyText}>
-								Aucune commande pour le moment.
-							</p>
+							<p style={emptyText}>Aucune commande pour le moment.</p>
 						) : (
 							orders.map((order) => (
 								<div
 									key={order.id}
 									style={{ ...orderCard, cursor: 'pointer' }}
-									onClick={() =>
-										router.push(`/account/orders/${order.id}`)
-									}
+									onClick={() => router.push(`/account/orders/${order.id}`)}
 								>
 									<div>
-										<p style={orderId}>
-											Commande #{order.id.slice(0, 6)}
-										</p>
+										<p style={orderId}>Commande #{order.id.slice(0, 6)}</p>
 
 										<p style={orderMeta}>
 											{new Date(order.date).toLocaleDateString()} •{' '}
@@ -169,15 +166,20 @@ const AccountPage = () => {
 					</button>
 				</div>
 
-				{/* PARAMÈTRES */}
 				<div style={card}>
 					<h2 style={cardTitle}>⚙️ Paramètres</h2>
+
+					<p style={settingsText}>
+						Gère ton compte, mets à jour tes informations et sécurise ton accès.
+					</p>
 
 					<div style={actionsColumn}>
 						<button
 							type="button"
 							style={btnOutline}
-							onClick={() => console.log('edit')}
+							onClick={() => {
+								alert('Page de modification du profil à brancher ici.');
+							}}
 						>
 							Modifier mes informations
 						</button>
@@ -185,7 +187,9 @@ const AccountPage = () => {
 						<button
 							type="button"
 							style={btnOutline}
-							onClick={() => console.log('password')}
+							onClick={() => {
+								alert('Page de changement de mot de passe à brancher ici.');
+							}}
 						>
 							Changer mot de passe
 						</button>
@@ -194,8 +198,12 @@ const AccountPage = () => {
 							type="button"
 							style={dangerBtn}
 							onClick={() => {
-								if (confirm('Supprimer le compte ?')) {
-									console.log('delete');
+								const confirmed = window.confirm(
+									'Es-tu sûr de vouloir supprimer ton compte ?'
+								);
+
+								if (confirmed) {
+									alert('Suppression du compte à brancher ici.');
 								}
 							}}
 						>
@@ -210,17 +218,24 @@ const AccountPage = () => {
 
 export default AccountPage;
 
-//
-// 🎨 STYLES
-//
-
-const container = { padding: 40, color: 'white' };
+const container = {
+	padding: 40,
+	color: 'white',
+};
 
 const header = {
 	display: 'flex',
 	justifyContent: 'space-between',
 	alignItems: 'center',
 	marginBottom: 30,
+	gap: 20,
+	flexWrap: 'wrap' as const,
+};
+
+const headerLeft = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: 12,
 };
 
 const avatar = {
@@ -232,15 +247,23 @@ const avatar = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	fontWeight: 700,
+	fontSize: 18,
 };
 
-const title = { fontSize: 28, margin: 0 };
+const title = {
+	fontSize: 28,
+	margin: 0,
+};
 
-const subtitle = { opacity: 0.6, margin: 0 };
+const subtitle = {
+	opacity: 0.6,
+	marginTop: 6,
+	marginBottom: 0,
+};
 
 const statsGrid = {
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
 	gap: 16,
 	marginBottom: 20,
 };
@@ -248,12 +271,22 @@ const statsGrid = {
 const statCard = {
 	background: '#0f172a',
 	borderRadius: 14,
-	padding: 16,
+	padding: 18,
+	border: '1px solid rgba(255,255,255,0.06)',
 };
 
-const statLabel = { opacity: 0.6 };
+const statLabel = {
+	fontSize: 13,
+	opacity: 0.65,
+	margin: 0,
+	marginBottom: 8,
+};
 
-const statValue = { fontSize: 22, fontWeight: 700 };
+const statValue = {
+	fontSize: 24,
+	fontWeight: 700,
+	margin: 0,
+};
 
 const grid = {
 	display: 'grid',
@@ -265,73 +298,117 @@ const card = {
 	background: '#1e293b',
 	borderRadius: 16,
 	padding: 20,
+	border: '1px solid rgba(255,255,255,0.08)',
 };
 
-const cardTitle = { marginBottom: 15 };
+const cardTitle = {
+	marginTop: 0,
+	marginBottom: 15,
+};
 
 const info = {
 	display: 'flex',
 	justifyContent: 'space-between',
 	marginBottom: 10,
+	gap: 16,
 };
 
-const label = { opacity: 0.6 };
+const infoValueMultiline = {
+	textAlign: 'right' as const,
+	maxWidth: 260,
+	wordBreak: 'break-word' as const,
+};
 
-const statusActive = { color: '#22c55e' };
+const label = {
+	opacity: 0.6,
+};
+
+const statusActive = {
+	color: '#22c55e',
+	fontWeight: 600,
+};
 
 const logoutBtn = {
 	padding: '8px 14px',
 	borderRadius: 8,
+	border: 'none',
 	background: '#ef4444',
 	color: 'white',
-	border: 'none',
 	cursor: 'pointer',
 };
 
 const btnOutline = {
-	padding: '10px',
-	borderRadius: 8,
+	padding: '12px 14px',
+	borderRadius: 10,
 	background: 'transparent',
 	border: '1px solid rgba(255,255,255,0.2)',
 	color: 'white',
 	cursor: 'pointer',
+	width: '100%',
 };
 
 const dangerBtn = {
-	padding: '10px',
-	borderRadius: 8,
+	padding: '12px 14px',
+	borderRadius: 10,
+	border: 'none',
 	background: '#b91c1c',
 	color: 'white',
-	border: 'none',
 	cursor: 'pointer',
+	width: '100%',
 };
 
 const actionsColumn = {
 	display: 'flex',
 	flexDirection: 'column' as const,
-	gap: 10,
+	gap: 12,
+};
+
+const settingsText = {
+	opacity: 0.7,
+	marginTop: 0,
+	marginBottom: 10,
 };
 
 const ordersList = {
 	display: 'flex',
 	flexDirection: 'column' as const,
 	gap: 10,
+	marginBottom: 10,
 };
 
-const emptyText = { opacity: 0.6 };
+const emptyText = {
+	opacity: 0.6,
+	margin: 0,
+};
 
 const orderCard = {
 	display: 'flex',
 	justifyContent: 'space-between',
+	alignItems: 'center',
 	padding: 12,
-	background: '#0f172a',
 	borderRadius: 10,
+	background: '#0f172a',
+	border: '1px solid rgba(255,255,255,0.05)',
 };
 
-const orderId = { fontWeight: 600 };
+const orderId = {
+	fontWeight: 600,
+	margin: 0,
+};
 
-const orderMeta = { fontSize: 12, opacity: 0.6 };
+const orderMeta = {
+	fontSize: 12,
+	opacity: 0.6,
+	margin: '4px 0 0 0',
+};
 
-const orderTotal = { fontWeight: 600 };
+const orderTotal = {
+	fontWeight: 600,
+	margin: 0,
+};
 
-const statusPaid = { fontSize: 12, color: '#22c55e' };
+const statusPaid = {
+	fontSize: 12,
+	color: '#22c55e',
+	margin: '4px 0 0 0',
+};
